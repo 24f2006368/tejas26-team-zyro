@@ -1,0 +1,52 @@
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <a href="{{ url_for('admin.verification') }}" class="text-sm text-stone-500 hover:underline">← Verification queue</a>
+
+  <div class="card p-6 mt-4">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h1 class="text-xl font-bold">{{ shop.name }}</h1>
+        <div class="text-sm text-stone-500">{{ shop.category.name if shop.category else "" }} · {{ shop.registration_method }} registration</div>
+      </div>
+      <span class="badge badge-pending">{{ shop.verification_status.replace('_',' ') }}</span>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4 text-sm mb-6">
+      <div><span class="text-stone-400">Owner:</span> {{ shop.owner.name }}</div>
+      <div><span class="text-stone-400">Contact:</span> {{ shop.owner.email or shop.owner.phone }}</div>
+      <div class="sm:col-span-2"><span class="text-stone-400">Address:</span> {{ shop.address }}, {{ shop.locality }}, {{ shop.city }} {{ shop.pincode }}</div>
+      <div><span class="text-stone-400">Location:</span> {{ shop.latitude }}, {{ shop.longitude }}</div>
+      <div><span class="text-stone-400">Hours:</span> {{ shop.opening_time }}–{{ shop.closing_time }} ({{ shop.working_days }})</div>
+    </div>
+
+    <p class="text-sm text-stone-600 mb-6">{{ shop.description }}</p>
+
+    <h2 class="font-bold mb-2">Documents</h2>
+      <p class="text-sm text-stone-500 mb-6">No documents uploaded.</p>
+
+      <div class="flex flex-wrap gap-2 mb-6">
+        
+          <a href="{{ url_for('admin.document', shop_id=shop.id, doc_id=d.id) }}" target="_blank" class="badge badge-neutral hover:bg-stone-200">
+            📄 {{ d.document_type }} {% if d.document_number %}({{ d.document_number }})
+          </a>
+      </div>
+
+
+    <h2 class="font-bold mb-2">Images</h2>
+      <p class="text-sm text-stone-500 mb-6">No images uploaded.</p>
+      <div class="grid grid-cols-4 gap-2 mb-6">
+          <div>
+            <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" class="w-full h-20 object-cover rounded-md border border-stone-200">
+            <div class="text-[10px] text-stone-400 text-center mt-1">{{ img.image_type }}</div>
+          </div>
+      </div>
+
+    <form method="post" action="{{ url_for('admin.verification_decide', shop_id=shop.id) }}" class="border-t border-stone-200 pt-4 space-y-3">
+      <textarea name="notes" rows="2" placeholder="Notes (shown to merchant if rejected/correction requested)" class="w-full border border-stone-300 rounded-md px-3 py-2 text-sm"></textarea>
+      <div class="flex gap-2">
+        <button name="decision" value="approve" class="bg-bazaar-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-bazaar-800">Approve</button>
+        <button name="decision" value="correction" class="border border-clay-300 text-clay-700 px-4 py-2 rounded-md text-sm font-semibold hover:bg-clay-50">Request Correction</button>
+        <button name="decision" value="reject" class="border border-red-300 text-red-700 px-4 py-2 rounded-md text-sm font-semibold hover:bg-red-50">Reject</button>
+      </div>
+    </form>
+  </div>
+</div>
