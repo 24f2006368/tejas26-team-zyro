@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-6">
+
+  <div class="fade-up mb-6" style="animation-delay:.02s">
+    <h1 class="text-2xl font-bold text-ink">
+      <span id="dash-greeting">Hi</span>{{ ", " + current_user.name.split(' ')[0] if current_user.is_authenticated else "" }} 👋
+    </h1>
+    <p class="text-sm text-stone-500 mt-0.5">Here's what's happening around you today.</p>
+  </div>
+
+  {% if not has_location %}
+    <div class="card p-6 mb-6 flex items-center justify-between flex-wrap gap-3 fade-up" style="animation-delay:.05s">
+      <div>
+        <div class="font-semibold text-ink">See what's nearby</div>
+        <div class="text-sm text-stone-500">Share your location to discover shops, food and services around you.</div>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="nearcartUseMyLocation('{{ url_for('customer.dashboard') }}')"
+                class="bg-bazaar-700 text-white px-4 py-2 rounded-md font-semibold text-sm hover:bg-bazaar-800 transition-colors">📍 Use my location</button>
+        <a href="{{ url_for('customer.explore') }}" class="border border-stone-300 px-4 py-2 rounded-md font-semibold text-sm hover:bg-stone-100 transition-colors">Choose manually</a>
+      </div>
+    </div>
+  {% endif %}
+
+  <form action="{{ url_for('search.results') }}" method="get" class="md:hidden mb-6">
+    <div class="relative">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm">🔎</span>
+      <input type="text" name="q" placeholder="Search shops, products, services or food"
+             class="w-full rounded-md border border-stone-300 pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-bazaar-500 focus:border-bazaar-500">
+    </div>
+  </form>
+
+  <div class="grid sm:grid-cols-3 gap-4 mb-8" data-stagger>
+    <div class="stat-card stat-card-accent">
+      <div class="flex items-center justify-between">
+        <div class="stat-label text-xs font-semibold uppercase tracking-wide">Nearby now</div>
+        <span class="text-lg">📍</span>
+      </div>
+      <div class="text-3xl font-extrabold mt-2"><span data-count="{{ nearby|length }}">0</span></div>
+      <a href="{{ url_for('customer.explore') }}" class="text-xs font-semibold underline decoration-white/40 hover:decoration-white mt-1 inline-block">Open map →</a>
+    </div>
+    <div class="stat-card stat-card-warm">
+      <div class="flex items-center justify-between">
+        <div class="stat-label text-xs font-semibold uppercase tracking-wide">Trending</div>
+        <span class="text-lg">🔥</span>
+      </div>
+      <div class="text-3xl font-extrabold mt-2"><span data-count="{{ trending|length }}">0</span></div>
+      <div class="text-xs font-semibold opacity-90 mt-1">Popular this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="flex items-center justify-between">
+        <div class="text-xs font-semibold uppercase tracking-wide text-stone-500">Saved</div>
+        <span class="icon-badge">♥</span>
+      </div>
+      <div class="text-3xl font-extrabold mt-2 text-ink"><span data-count="{{ saved|length }}">0</span></div>
+      <a href="{{ url_for('customer.saved') }}" class="text-xs font-semibold text-bazaar-700 hover:underline mt-1 inline-block">View saved →</a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-4 sm:grid-cols-8 gap-3 mb-10" data-stagger>
+    {% for cat in categories %}
+      <a href="{{ url_for('customer.explore', category=cat.type) }}" class="chip-cat card p-3 text-center hover:border-bazaar-300">
+        <div class="icon-badge mx-auto mb-1.5">
+          {% if cat.type == "FOOD" %}🍜{% elif cat.type == "SERVICE" %}🔧{% elif cat.type == "SPECIALTY" %}✨{% else %}🏪{% endif %}
+        </div>
+        <div class="text-xs font-semibold truncate">{{ cat.name }}</div>
+      </a>
+    {% endfor %}
+  </div>
+
+  <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+    <h2 class="text-xl font-bold text-ink flex items-center gap-2"><span class="icon-badge">📍</span>Nearby</h2>
+    <a href="{{ url_for('customer.explore') }}" class="text-sm font-semibold text-bazaar-700 hover:underline">View map →</a>
+  </div>
+  {% set radius_endpoint = "customer.dashboard" %}
+  <div class="mb-4">{% include "partials/radius_selector.html" %}</div>
+  {% if nearby %}
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10" data-stagger>
+      {% for shop in nearby %}{% include "partials/shop_card.html" %}{% endfor %}
+    </div>
+  {% else %}
+    <div class="card p-8 text-center text-stone-500 mb-10">Nothing found nearby yet. Try sharing your location or increasing the search radius.</div>
+  {% endif %}
+
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-bold text-ink flex items-center gap-2"><span class="icon-badge">🔥</span>Trending Near You</h2>
+  </div>
+  {% if trending %}
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10" data-stagger>
+      {% for shop in trending %}{% include "partials/shop_card.html" %}{% endfor %}
+    </div>
+  {% else %}
+    <p class="text-sm text-stone-500 mb-10">Not enough activity yet to show trending businesses.</p>
+  {% endif %}
+
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-bold text-ink flex items-center gap-2"><span class="icon-badge">✨</span>Discover Your Bazaar</h2>
+  </div>
+  {% if discover %}
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10" data-stagger>
+      {% for shop in discover %}{% include "partials/shop_card.html" %}{% endfor %}
+    </div>
+  {% endif %}
+
+  {% if saved %}
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold text-ink flex items-center gap-2"><span class="icon-badge">♥</span>Recently Saved</h2>
+      <a href="{{ url_for('customer.saved') }}" class="text-sm font-semibold text-bazaar-700 hover:underline">View all →</a>
+    </div>
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4" data-stagger>
+      {% for item in saved %}
+        {% if item.shop %}{% set shop = item.shop %}{% include "partials/shop_card.html" %}{% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
