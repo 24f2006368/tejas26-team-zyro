@@ -1,0 +1,30 @@
+<div class="max-w-5xl mx-auto px-4 py-8">
+<h1 class="text-2xl font-bold text-ink mb-6">Platform Overview</h1>
+
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+<!-- including labels for values  -->
+    <div class="card p-4">
+        <div class="text-2xl font-extrabold">{{ value }}</div>
+        <div class="text-xs text-stone-500 mt-1">{{ label }}</div>
+      </div>
+  </div>
+
+  <h2 class="font-bold text-lg mb-3">Recent registrations</h2>
+  <div class="card overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-stone-50 text-stone-500 text-xs uppercase"><tr>
+        <th class="text-left px-4 py-3">Shop</th><th class="text-left px-4 py-3">Category</th>
+        <th class="text-left px-4 py-3">Status</th><th class="text-left px-4 py-3">Registered</th>
+      </tr></thead>
+      <tbody>
+        <!-- recent shops searched in shops -->
+          <tr class="border-t border-stone-100">
+            <td class="px-4 py-3 font-semibold">{{ shop.name }}</td>
+            <td class="px-4 py-3 text-stone-500">{{ shop.category.name if shop.category else "" }}</td>
+            <td class="px-4 py-3"><span class="badge {% if shop.verification_status == 'APPROVED' %}badge-verified{% elif shop.verification_status == 'PENDING' %}badge-pending{% else %}badge-neutral{% endif %}">{{ shop.verification_status }}</span></td>
+            <td class="px-4 py-3 text-stone-400">{{ shop.created_at | timeago }}</td>
+          </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-ink">Users</h1>
+    <form method="get" class="flex gap-2">
+      <input name="q" value="{{ q }}" placeholder="Search users" class="border border-stone-300 rounded-md px-3 py-2 text-sm">
+      <button class="border border-stone-300 rounded-md px-3 py-2 text-sm font-semibold hover:bg-stone-100">Search</button>
+    </form>
+  </div>
+  <div class="card overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-stone-50 text-stone-500 text-xs uppercase"><tr>
+        <th class="text-left px-4 py-3">Name</th><th class="text-left px-4 py-3">Contact</th>
+        <th class="text-left px-4 py-3">Role</th><th class="text-left px-4 py-3">Status</th><th class="px-4 py-3"></th>
+      </tr></thead>
+      <tbody>
+          <tr class="border-t border-stone-100">
+            <td class="px-4 py-3 font-semibold">{{ u.name }}</td>
+            <td class="px-4 py-3 text-stone-500">{{ u.email or u.phone }}</td>
+            <td class="px-4 py-3 text-stone-500">{{ u.role }}</td>
+            <td class="px-4 py-3"><span class="badge {% if u.is_active_account %}badge-verified{% else %}badge-danger{% endif %}">{{ "Active" if u.is_active_account else "Suspended" }}</span></td>
+            <td class="px-4 py-3 text-right">
+              <form method="post" action="{{ url_for('admin.toggle_user', user_id=u.id) }}">
+                <button class="text-xs font-semibold hover:underline {% if u.is_active_account %}text-red-600{% else %}text-bazaar-700{% endif %}">
+                </button>
+              </form>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
