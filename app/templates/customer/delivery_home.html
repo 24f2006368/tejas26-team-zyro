@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Deliveries{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-ink mb-6">Delivery Requests</h1>
+
+  {% set next_status = {
+    "ASSIGNED": ("ACCEPTED", "Accept"), "ACCEPTED": ("AT_SHOP", "Arrived at Shop"),
+    "AT_SHOP": ("PICKED_UP", "Picked Up"), "PICKED_UP": ("OUT_FOR_DELIVERY", "Out for Delivery"),
+    "OUT_FOR_DELIVERY": ("DELIVERED", "Mark Delivered")
+  } %}
+
+  {% if not assigned %}
+    <div class="card p-10 text-center text-stone-500">No active deliveries assigned to you right now.</div>
+  {% else %}
+    <div class="space-y-3 mb-10">
+      {% for d in assigned %}
+        <div class="card p-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-semibold">{{ d.reservation.product.name if d.reservation.product else "Order" }} #{{ d.reservation_id }}</div>
+              <div class="text-sm text-stone-500">Pickup: {{ d.pickup_address }}</div>
+              <div class="text-sm text-stone-500">Drop: {{ d.drop_address }}</div>
+              <div class="text-xs text-stone-400 mt-1">Fee: ₹{{ "%.0f"|format(d.delivery_fee) }}</div>
+            </div>
+            <span class="badge badge-pending">{{ d.status }}</span>
+          </div>
+          {% if d.status in next_status %}
+            <form method="post" action="{{ url_for('delivery.advance', delivery_id=d.id) }}" class="mt-3">
+              {% include "partials/csrf.html" %}
+              <input type="hidden" name="status" value="{{ next_status[d.status][0] }}">
+              <button class="bg-bazaar-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-bazaar-800">{{ next_status[d.status][1] }}</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <h2 class="font-bold text-lg mb-3">Recently completed</h2>
+  {% if not completed %}
+    <p class="text-sm text-stone-500">No completed deliveries yet.</p>
+  {% else %}
+    <div class="space-y-2">
+      {% for d in completed %}
+        <div class="card p-3 flex justify-between text-sm">
+          <span>Order #{{ d.reservation_id }}</span>
+          <span class="text-stone-400">{{ d.completed_at | timeago }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
