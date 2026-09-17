@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-ink mb-6">Notifications</h1>
+  {% if not notifications %}
+    <div class="card p-10 text-center text-stone-500">No notifications yet.</div>
+  {% else %}
+    <div class="space-y-2">
+      {% for n in notifications %}
+        <a href="{{ n.link or '#' }}" class="card p-4 flex justify-between items-start block hover:border-bazaar-300">
+          <div>
+            <div class="font-semibold text-sm">{{ n.title }}</div>
+            <div class="text-sm text-stone-500">{{ n.message or "" }}</div>
+          </div>
+          <span class="text-xs text-stone-400 shrink-0 ml-3">{{ n.created_at | timeago }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
