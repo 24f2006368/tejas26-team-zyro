@@ -47,3 +47,4 @@ Flask-SocketIO for chat, Tailwind (CDN) + Jinja2, no React, no OTP auth.
 - AI-assisted product-entry-from-photo and voice search are stubbed (no external AI wired in)
 - Delivery partner dashboard is minimal/operational only, as specified
 - No dedicated analytics dashboards beyond the admin overview counts
+-
