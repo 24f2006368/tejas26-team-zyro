@@ -71,3 +71,44 @@
   ]
 }
 </script>
+
+<script>
+  const data = JSON.parse(document.getElementById('shops-json').textContent);
+  const center = (lat && lon) ? [lat, lon] : (data.shops.length ? [data.shops[0].lat, data.shops[0].lon] : [25.1417, 85.5350]);
+  const map = L.map('explore-map').setView(center, 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: 'OpenStreetMap contributors', maxZoom: 19 }).addTo(map);
+
+  if (lat && lon) {
+    L.circleMarker([lat, lon], { radius: 8, color: '#0f766e', fillColor: '#14b8a6', fillOpacity: 1, weight: 2 })
+      .addTo(map).bindPopup('You are here');
+  }
+
+  const cluster = L.markerClusterGroup({ maxClusterRadius: 50 });
+  const markers = {};
+  data.shops.forEach(s => {
+    const marker = L.marker([s.lat, s.lon]);
+    marker.bindPopup(
+      `<div class="text-sm"><div class="font-semibold">${s.name}</div>` +
+      `${s.rating ? '★ ' + s.rating + ' · ' : ''}${s.distance !== null ? s.distance + ' km' : ''}` +
+      `<div class="mt-1"><a href="${s.url}" class="text-teal-700 font-semibold">View Shop →</a></div></div>`
+    );
+    marker.on('click', () => highlightCard(s.id));
+    markers[s.id] = marker;
+    cluster.addLayer(marker);
+  });
+  map.addLayer(cluster);
+
+  function focusShop(id) {
+    const marker = markers[id];
+    if (!marker) return;
+    map.setView(marker.getLatLng(), 16);
+    marker.openPopup();
+    highlightCard(id);
+  }
+  function highlightCard(id) {
+    document.querySelectorAll('[id^="card-"]').forEach(el => el.classList.remove('border-bazaar-500'));
+    const card = document.getElementById('card-' + id);
+    if (card) { card.classList.add('border-bazaar-500'); card.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  }
+</script>
+{% endblock %}
