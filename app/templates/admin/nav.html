@@ -1,0 +1,7 @@
+<div class="flex flex-wrap gap-2 mb-6 text-sm font-semibold">
+ <!-- setting links for labels -->
+    <a href="{{ url_for(endpoint) }}"
+       class="px-3 py-1.5 rounded-md border {% if request.endpoint == endpoint %}bg-ink text-white border-ink{% else %}border-stone-300 text-stone-600 hover:bg-stone-100{% endif %}">
+      {{ label }}
+    </a>
+</div>
