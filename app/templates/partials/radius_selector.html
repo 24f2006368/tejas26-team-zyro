@@ -1,0 +1,32 @@
+{# Minimal, consistent stroke-icon set used across the home page.
+   No emoji, no icon library — a small hand-picked set of 24x24 line icons
+   so category/feature tiles read as one coherent visual system. #}
+{% macro icon(name, css_class="w-5 h-5") %}
+{% set paths = {
+  "map":         "M9 3 4 5v16l5-2 6 2 5-2V3l-5 2-6-2Zm0 0v16m6-16v16",
+  "tag":         "M20.59 13.41 12 22l-9-9V4h9l8.59 8.59a2 2 0 0 1 0 2.82ZM7 7h.01",
+  "chat":        "M21 12a8.5 8.5 0 1 1-3.6-6.95L21 4l-1 4.5A8.4 8.4 0 0 1 21 12Z",
+  "package":     "M21 8 12 3 3 8v8l9 5 9-5Zm0 0-9 5-9-5m9 5v8",
+  "bolt":        "M13 2 4 14h6l-1 8 9-12h-6l1-8Z",
+  "basket":      "M5 10h14l-1.5 9.5a2 2 0 0 1-2 1.7H8.5a2 2 0 0 1-2-1.7L5 10Zm2-4 2-3m8 3-2-3M9 14v3m3-3v3m3-3v3",
+  "shirt":       "M8 3 4 6l2 3 2-1v11h8V8l2 1 2-3-4-3-2 2h-4L8 3Z",
+  "wrench":      "M14.5 6.5a4 4 0 1 0-5.6 5.6L3 18v3h3l5.9-5.9a4 4 0 0 0 5.6-5.6l-2.2 2.2-2-2 2.2-2.2Z",
+  "pencil":      "M4 20h4L20 8l-4-4L4 16v4Zm11.5-13.5 4 4",
+  "smartphone":  "M8 2h8a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Zm4 17h.01",
+  "scissors":    "M6 6a2.5 2.5 0 1 1 3 2l9 9m0-11L9.5 15M6 18a2.5 2.5 0 1 0 3-2",
+  "utensils":    "M6 2v8a2 2 0 0 0 4 0V2M8 10v12M18 2v20M18 2c-2 0-3 2-3 4s1 4 3 4",
+  "bowl":        "M3 11h18a9 9 0 0 1-18 0Zm2 0c0-4 3-7 7-7s7 3 7 7",
+  "cake":        "M4 21v-7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7Zm0 0h16M8 11V8a2 2 0 0 1 4 0v3m0-3V8a2 2 0 0 1 4 0v3M12 4v1",
+  "star":        "M12 2 9.2 8.6 2 9.3l5.5 4.8L5.8 21 12 17.3 18.2 21l-1.7-6.9L22 9.3l-7.2-.7L12 2Z",
+  "dots":        "M5 12h.01M12 12h.01M19 12h.01",
+  "pin":         "M12 22s7-7.4 7-12a7 7 0 1 0-14 0c0 4.6 7 12 7 12Zm0-9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
+  "route":       "M4 19a3 3 0 1 0 0-6h1a3 3 0 1 0 6-4l6-6",
+  "arrow":       "M5 12h14m-6-6 6 6-6 6",
+  "search":      "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm10 2-4.35-4.35",
+  "compass":     "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Zm3-13-4 2-2 4 4-2 2-4Z",
+  "shop":        "M4 9 5 3h14l1 6M4 9v11h16V9M4 9h16M9 20v-6h6v6",
+} %}
+<svg class="{{ css_class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="{{ paths.get(name, paths['dots']) }}"></path>
+</svg>
+{% endmacro %}
