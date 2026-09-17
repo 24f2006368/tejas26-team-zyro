@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Receipt {{ reservation.receipt_number }}{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-8 print:py-0">
+  <div class="flex items-center justify-between mb-4 print:hidden">
+    <a href="{{ url_for('reservation.detail', reservation_id=reservation.id) }}" class="text-sm text-stone-500 hover:underline">← Back to reservation</a>
+    <button onclick="window.print()" class="text-sm font-semibold text-bazaar-700 hover:underline">🖨️ Print / Save PDF</button>
+  </div>
+
+  <div class="card p-6">
+    <div class="text-center mb-4">
+      <div class="font-extrabold text-lg tracking-tight">NearCart</div>
+      <div class="text-xs text-stone-400">Digital Receipt</div>
+    </div>
+    <div class="border-t border-dashed border-stone-300 my-3"></div>
+
+    <div class="flex justify-between text-sm mb-1">
+      <span class="text-stone-500">Receipt No.</span>
+      <span class="font-semibold">{{ reservation.receipt_number }}</span>
+    </div>
+    <div class="flex justify-between text-sm mb-1">
+      <span class="text-stone-500">Date</span>
+      <span>{{ reservation.completed_at.strftime("%d %b %Y, %I:%M %p") if reservation.completed_at else "" }}</span>
+    </div>
+    <div class="flex justify-between text-sm mb-1">
+      <span class="text-stone-500">Status</span>
+      <span class="badge badge-verified">COMPLETED</span>
+    </div>
+
+    <div class="border-t border-dashed border-stone-300 my-3"></div>
+
+    <div class="text-sm mb-1"><span class="text-stone-500">Shop</span></div>
+    <div class="font-semibold text-sm">{{ reservation.shop.name }}</div>
+    <div class="text-xs text-stone-500">{{ reservation.shop.address or "" }}</div>
+
+    <div class="border-t border-dashed border-stone-300 my-3"></div>
+
+    <div class="text-sm mb-1"><span class="text-stone-500">Customer</span></div>
+    <div class="font-semibold text-sm">{{ reservation.customer.name }}</div>
+
+    <div class="border-t border-dashed border-stone-300 my-3"></div>
+
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-stone-400 text-xs">
+          <th class="text-left pb-1">Product</th>
+          <th class="text-right pb-1">Qty</th>
+          <th class="text-right pb-1">Unit Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="py-1">{{ reservation.product.name if reservation.product else "Item" }}</td>
+          <td class="text-right py-1">{{ reservation.quantity }}</td>
+          <td class="text-right py-1">{{ "₹%.0f"|format(reservation.unit_price_snapshot) if reservation.unit_price_snapshot is not none else "—" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="border-t border-dashed border-stone-300 my-3"></div>
+
+    <div class="flex justify-between text-base font-bold mb-1">
+      <span>Total</span>
+      <span>{{ "₹%.0f"|format(reservation.total_price) if reservation.total_price is not none else "Price on request" }}</span>
+    </div>
+
+    <div class="border-t border-dashed border-stone-300 my-3"></div>
+
+    <div class="flex justify-between text-sm mb-1">
+      <span class="text-stone-500">Payment Method</span>
+      <span>{{ "Pay Online (Demo)" if reservation.payment_method == "PAY_ONLINE_DEMO" else "Pay at Shop" }}</span>
+    </div>
+    <div class="flex justify-between text-sm">
+      <span class="text-stone-500">Fulfilment</span>
+      <span>{{ "Delivery" if reservation.fulfilment_type == "DELIVERY" else "Pickup" }}</span>
+    </div>
+
+    {% if reservation.payment_method == "PAY_ONLINE_DEMO" %}
+      <p class="text-[11px] text-stone-400 mt-4 text-center">
+        DEMO PAYMENT — no real money was transferred. This receipt is a prototype
+        document, not a tax invoice.
+      </p>
+    {% else %}
+      <p class="text-[11px] text-stone-400 mt-4 text-center">
+        This is a prototype receipt, not a tax invoice.
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
