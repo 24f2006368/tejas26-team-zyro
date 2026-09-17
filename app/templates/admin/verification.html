@@ -1,0 +1,20 @@
+<!-- business verificaation -->
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-ink mb-6">Business Verification</h1>
+
+  <div class="flex gap-2 mb-6 text-sm font-semibold">
+      <a href="{{ url_for('admin.verification', status=s) }}"
+         class="px-3 py-1.5 rounded-md border {% if status == s %}bg-ink text-white border-ink{% else %}border-stone-300 text-stone-600 hover:bg-stone-100{% endif %}">{{ s.replace('_',' ') }}</a>
+  </div>
+
+    <div class="card p-10 text-center text-stone-500">No pending verification requests.</div>
+    <div class="space-y-3">
+        <a href="{{ url_for('admin.verification_detail', shop_id=shop.id) }}" class="card p-4 flex justify-between items-center hover:border-bazaar-300">
+          <div>
+            <div class="font-semibold">{{ shop.name }}</div>
+            <div class="text-sm text-stone-500">{{ shop.owner.name }} · {{ shop.category.name if shop.category else "" }} · {{ shop.registration_method }}</div>
+          </div>
+          <div class="text-xs text-stone-400">{{ shop.created_at | timeago }}</div>
+        </a>
+    </div>
+</div>
