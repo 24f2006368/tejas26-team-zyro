@@ -117,3 +117,13 @@
   {% endif %}
 
 </div>
+
+<script>
+  (function () {
+    var h = new Date().getHours();
+    var greeting = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+    var el = document.getElementById("dash-greeting");
+    if (el) el.textContent = greeting;
+  })();
+</script>
+{% endblock %}
