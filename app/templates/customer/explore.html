@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Explore{% endblock %}
+{% block head %}<style>#explore-map{height:calc(100vh - 64px - 56px);}@media(max-width:768px){ #explore-map{height:50vh;} }</style>{% endblock %}
+{% block content %}
+<div class="border-b border-stone-200 bg-white">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2 overflow-x-auto text-sm font-semibold">
+    {% for key, label in [("","All"),("SHOP","Shops"),("FOOD","Food"),("SERVICE","Services"),("SPECIALTY","Specialties")] %}
+      <a href="{{ url_for('customer.explore', category=key, q=q, lat=lat, lon=lon, radius=radius) }}"
+         class="px-3 py-1.5 rounded-md border whitespace-nowrap {% if category == key or (not category and not key) %}bg-bazaar-700 text-white border-bazaar-700{% else %}border-stone-300 text-stone-600 hover:bg-stone-100{% endif %}">{{ label }}</a>
+    {% endfor %}
+    <button onclick="nearcartUseMyLocation('{{ url_for('customer.explore') }}')" class="ml-auto px-3 py-1.5 rounded-md border border-bazaar-300 text-bazaar-700 whitespace-nowrap hover:bg-bazaar-50">📍 My location</button>
+  </div>
+  <div class="max-w-6xl mx-auto px-4 pb-3">
+    {% set radius_endpoint = "customer.explore" %}
+    {% include "partials/radius_selector.html" %}
+  </div>
+</div>
+
+<div class="grid md:grid-cols-[380px_1fr]">
+  <div class="overflow-y-auto border-r border-stone-200 bg-white" style="max-height: calc(100vh - 64px - 56px);">
+    <div class="p-4">
+      <div class="text-xs font-semibold text-stone-400 mb-3">{{ shops|length }} result{{ "s" if shops|length != 1 }}</div>
+      {% if not shops %}
+        <div class="card p-6 text-center text-stone-500 text-sm">Nothing found nearby. Try a broader search radius or another category.</div>
+      {% endif %}
+      <div class="space-y-3">
+        {% for shop in shops %}
+          <div class="card p-4 cursor-pointer hover:border-bazaar-300" onclick="focusShop({{ shop.id }})" id="card-{{ shop.id }}">
+            <div class="flex justify-between items-start">
+              <div class="font-semibold">{{ shop.name }}</div>
+              {% if shop.is_verified %}<span class="badge badge-verified shrink-0">✓</span>{% endif %}
+            </div>
+            <div class="text-xs text-stone-500">{{ shop.display_category_name or "" }}</div>
+            <div class="text-sm text-stone-600 mt-1">
+              {% if shop.rating_average %}★ {{ shop.rating_average }} <span class="text-stone-400">({{ shop.review_count }})</span>{% endif %}
+              {% if shop.distance_km is not none %} · {{ shop.distance_km | distance }}{% endif %}
+              {% if shop.is_open_now is not none %}
+                <span class="badge {% if shop.is_open_now %}badge-verified{% else %}badge-neutral{% endif %} ml-1">{{ "Open" if shop.is_open_now else "Closed" }}</span>
+              {% endif %}
+            </div>
+            <div class="flex gap-2 mt-2">
+              <a href="{{ url_for('product.shop_profile', shop_id=shop.id) }}" class="text-xs font-semibold text-bazaar-700 hover:underline">View Shop</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div id="explore-map"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const lat = {{ lat if lat else "null" }};
+  const lon = {{ lon if lon else "null" }};
+</script>
+<script id="shops-json" type="application/json">
+{
+  "shops": [
+    {% for shop in shops %}
+    {
+      "id": {{ shop.id }}, "name": {{ shop.name | tojson }},
+      "lat": {{ shop.latitude }}, "lon": {{ shop.longitude }},
+      "distance": {{ (shop.distance_km | round(1)) if shop.distance_km is not none else "null" }},
+      "rating": {{ shop.rating_average if shop.rating_average else "null" }},
+      "verified": {{ "true" if shop.is_verified else "false" }},
+      "url": {{ url_for('product.shop_profile', shop_id=shop.id) | tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
