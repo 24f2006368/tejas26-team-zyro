@@ -49,3 +49,37 @@
   </form>
 </div>
 {% endblock %}
+
+{% block scripts %}
+<script>
+  const conversationId = {{ conversation.id }};
+  const currentUserId = {{ current_user.id }};
+  const list = document.getElementById('message-list');
+  list.scrollTop = list.scrollHeight;
+
+  const socket = io();
+  socket.on('connect', () => socket.emit('join_conversation', { conversation_id: conversationId }));
+  socket.on('new_message', (data) => {
+    if (data.conversation_id !== conversationId) return;
+    appendMessage(data.message, data.sender_id === currentUserId);
+  });
+
+  function appendMessage(text, isMine) {
+    const div = document.createElement('div');
+    div.className = `max-w-[75%] ${isMine ? 'self-end bg-bazaar-700 text-white' : 'self-start bg-stone-100 text-ink'} rounded-lg px-3 py-2 text-sm`;
+    div.textContent = text;
+    list.appendChild(div);
+    list.scrollTop = list.scrollHeight;
+  }
+
+  document.getElementById('send-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const input = document.getElementById('message-input');
+    const text = input.value.trim();
+    if (!text) return;
+    socket.emit('send_message', { conversation_id: conversationId, message: text });
+    appendMessage(text, true);
+    input.value = '';
+  });
+</script>
+{% endblock %}
