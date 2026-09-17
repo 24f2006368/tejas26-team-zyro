@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Saved{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-ink mb-6">Saved</h1>
+  {% if not items %}
+    <div class="card p-10 text-center text-stone-500">Save shops to access them quickly later.</div>
+  {% else %}
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {% for item in items %}
+        {% if item.shop %}
+          {% set shop = item.shop %}
+          {% include "partials/shop_card.html" %}
+        {% elif item.product %}
+          <a href="{{ url_for('product.product_detail', product_id=item.product.id) }}" class="card p-4 hover:border-bazaar-300">
+            <div class="font-semibold">{{ item.product.name }}</div>
+            <div class="text-xs text-stone-500">{{ item.product.shop.name }}</div>
+          </a>
+        {% elif item.service %}
+          <a href="{{ url_for('product.service_detail', service_id=item.service.id) }}" class="card p-4 hover:border-bazaar-300">
+            <div class="font-semibold">{{ item.service.name }}</div>
+            <div class="text-xs text-stone-500">{{ item.service.shop.name }}</div>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
