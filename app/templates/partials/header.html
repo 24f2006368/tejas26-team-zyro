@@ -1,0 +1,773 @@
+NEARCART – CUSTOMER DASHBOARD & RESERVATION UX IMPROVEMENT PROMPT
+
+IMPORTANT:
+This task is ONLY for the specific changes listed below.
+
+DO NOT add unrelated features.
+DO NOT redesign unrelated admin/shopkeeper/business-owner functionality except where required to support the features below.
+DO NOT create unnecessary pages, AI features, recommendation systems, delivery systems, loyalty systems, gamification, or other new functionality.
+
+First inspect the EXISTING NearCart codebase and understand the current customer dashboard, search, nearby-shop search, product cards, shop cards, reservations, reviews, receipts, payment-related code, and admin reports.
+
+Preserve existing working functionality.
+Improve and extend the existing implementation rather than creating duplicate systems.
+
+==================================================
+1. CUSTOMER DASHBOARD UI IMPROVEMENT
+==================================================
+
+Improve the existing Customer Dashboard so it looks significantly more polished, modern, interactive, and professional.
+
+Do NOT completely replace the existing NearCart structure.
+
+Improve:
+
+- spacing
+- typography
+- card hierarchy
+- buttons
+- search area
+- filters
+- product cards
+- shop cards
+- reservation section
+- status indicators
+- empty states
+- hover states
+- loading states
+- responsive/mobile layout
+
+The dashboard should feel like ONE coherent NearCart product.
+
+Use clear visual hierarchy.
+
+Do not overuse:
+- gradients
+- glassmorphism
+- huge cards
+- excessive shadows
+- giant icons
+- random colors
+- unnecessary animations
+
+Use color only where it communicates useful information.
+
+==================================================
+2. USER-CONTROLLED SEARCH RADIUS
+==================================================
+
+After the customer chooses/selects their nearby location, they must be able to choose HOW FAR NearCart should search.
+
+Current concept:
+
+LOCATION → SEARCH RADIUS → PRODUCTS/SHOPS
+
+The customer should NOT be forced to use a fixed definition of "nearby".
+
+Add a clear "Search Radius" control near the location/search controls.
+
+Example options:
+
+- 500 m
+- 1 km
+- 2 km
+- 5 km
+- 10 km
+- 25 km
+- 50 km
+
+The exact options can follow the existing application's distance implementation, but the user must be able to choose the radius.
+
+The meaning should be obvious:
+
+"Search within 2 km"
+
+"Search within 10 km"
+
+etc.
+
+The customer should be able to expand the search from:
+
+nearby shops
+→ nearby bazaar
+→ nearby area
+→ nearby city
+
+without changing the fundamental search system.
+
+IMPORTANT:
+
+The selected radius must actually affect backend search results.
+
+Do NOT create a visual-only radius selector.
+
+The radius should be passed through the search request and used when calculating which shops/products are returned.
+
+The selected radius should remain visible while browsing results.
+
+Example:
+
+Location: Patna Junction
+Search radius: 5 km
+
+Results should only contain eligible shops within that radius.
+
+Changing to 25 km should refresh/recalculate the results.
+
+Use the existing distance calculation/service where possible.
+
+Do not create a second unrelated location system.
+
+==================================================
+3. IMPROVE SHOP CARDS
+==================================================
+
+Existing shop cards/tablets need to become more informative and visually designed.
+
+Each shop result should clearly show the information that is ALREADY available in the database.
+
+Where available, show:
+
+- Shop name
+- Verification status
+- Rating
+- Number of reviews
+- Product availability
+- Product price
+- Distance from selected location
+- Estimated travel time if already supported
+- Open/closed status if existing data supports it
+- Reservation availability
+- Relevant product availability
+
+The card should make it easy for the customer to understand:
+
+"Can I get my product here?"
+
+"How far is this shop?"
+
+"Can I reserve it?"
+
+Use clear visual hierarchy.
+
+Example structure:
+
+SHOP NAME
+Verified
+
+★★★★☆ 4.6 (128 reviews)
+
+₹499
+Available
+
+750 m away
+~5 min
+
+[Compare] [Reserve]
+
+Do not show fake values.
+
+If information does not exist in the database, do not invent it.
+
+==================================================
+4. COLOR HIGHLIGHTS FOR GOOD REVIEWS / TRUST
+==================================================
+
+Improve visual communication for highly-rated shops and products.
+
+Use restrained semantic highlighting.
+
+For example:
+
+- High rating → subtle green highlight/badge
+- Verified shop → verification badge
+- Available → green status
+- Limited/uncertain availability → amber
+- Unavailable → red/neutral unavailable state
+
+Do NOT create fake "Best Shop", "Winner", "Top Seller" labels.
+
+Do NOT rank shops artificially.
+
+The rating and review count must come from actual database values.
+
+The purpose is simply to make useful information visually easier to understand.
+
+Example:
+
+★★★★☆ 4.7
+128 reviews
+
+can have a subtle positive visual treatment.
+
+==================================================
+5. REVIEWS MUST REQUIRE A REAL CUSTOMER-SHOP INTERACTION
+==================================================
+
+A customer must NOT be able to post a review merely because they opened a shop page or product page.
+
+Review submission must require legitimate involvement with the shop.
+
+Preferred rule:
+
+A customer can review a shop/product only if the customer has completed a genuine transaction/reservation interaction with that shop.
+
+For the existing NearCart system:
+
+- A completed/collected reservation should qualify the customer to review.
+- Pending reservation should NOT qualify.
+- Rejected reservation should NOT qualify.
+- Cancelled reservation should NOT qualify.
+- Expired reservation should NOT qualify.
+- Simply viewing a product should NOT qualify.
+- Simply viewing a shop should NOT qualify.
+
+Connect the review eligibility check to existing reservation/order data.
+
+If the existing model uses Reservation as the transaction record, use it rather than creating an unnecessary duplicate system.
+
+Prevent duplicate reviews for the same eligible transaction/product where appropriate.
+
+The backend MUST enforce this rule.
+
+Do not rely only on hiding the review button in the frontend.
+
+The API/route must reject unauthorized review submissions.
+
+The customer UI should clearly explain why they can or cannot review.
+
+Example:
+
+"Review available after you collect your reservation."
+
+After successful collection:
+
+"Your purchase is complete. You can now review this shop/product."
+
+==================================================
+6. DIGITAL RECEIPT AFTER COMPLETED RESERVATION
+==================================================
+
+Add a simple digital receipt to every successfully completed/collected reservation.
+
+Do NOT create an unnecessarily complicated accounting system.
+
+When a reservation reaches the final completed state, generate/store a digital receipt.
+
+The receipt should contain:
+
+- NearCart
+- Receipt number
+- Customer name
+- Shop name
+- Shop address
+- Product name
+- Quantity
+- Unit price
+- Total price
+- Reservation/order reference
+- Date/time
+- Payment method
+- Transaction status
+
+Example:
+
+--------------------------------
+NEARCART DIGITAL RECEIPT
+
+Receipt: NC-000123
+
+Shop:
+ABC Electronics
+
+Customer:
+Customer Name
+
+Product:
+Samsung 25W Charger
+
+Quantity: 2
+Unit Price: ₹499
+
+Total: ₹998
+
+Payment:
+Pay at Shop
+
+Status:
+COMPLETED
+
+Date:
+18 Sep 2026
+--------------------------------
+
+The customer should be able to:
+
+- View receipt
+- Access receipt from completed reservation
+- Download/print receipt if practical within the existing architecture
+
+Do not claim the receipt is a government/tax invoice unless the system actually supports that.
+
+If payment is only simulated, clearly label it appropriately.
+
+==================================================
+7. ONLINE PAYMENT OPTION
+==================================================
+
+During reservation/checkout, provide a payment-method option:
+
+- Pay at Shop
+- Pay Online
+
+"Pay Online" does NOT need to be fully connected to a real payment gateway for this implementation.
+
+However, the architecture/UI should support the option properly.
+
+For hackathon/demo purposes:
+
+Pay Online can be implemented as a clearly labelled demo/mock payment flow.
+
+Example:
+
+Payment Method
+
+○ Pay at Shop
+○ Pay Online (Demo)
+
+If Pay Online is selected:
+
+- show a simple demo payment confirmation flow
+- update payment status appropriately
+- do NOT pretend that real money was transferred
+- receipt should show the selected payment method
+- clearly distinguish DEMO payment from real payment
+
+If a real payment integration already exists, preserve it rather than replacing it.
+
+Do not add a real payment provider unless already present.
+
+==================================================
+8. RESERVATION COUNTDOWN
+==================================================
+
+Reservations must have a VERY visible countdown.
+
+The countdown becomes active/important once the shopkeeper approves/confirms the reservation.
+
+Example:
+
+RESERVATION CONFIRMED
+
+Your item has been reserved.
+
+Pickup must be completed within:
+
+29:42
+
+The countdown should continue in real time without requiring page refresh.
+
+When:
+
+30:00 → 29:59 → 29:58 ...
+
+The UI should update automatically.
+
+Use the actual reservation expiry timestamp from the backend.
+
+Do NOT implement a fake frontend-only timer.
+
+The backend must remain the source of truth.
+
+If the existing reservation system currently uses a different expiry period, update it to the intended reservation-hold period used by NearCart.
+
+For the current NearCart design, use a 30-minute reservation hold after confirmation unless the existing business logic explicitly requires another configurable value.
+
+When the countdown reaches zero:
+
+- reservation becomes EXPIRED
+- reserved inventory must be released if inventory reservation exists
+- customer must clearly see that the reservation expired
+- Reserve/Pickup actions must no longer be available for that expired reservation
+
+==================================================
+9. VERY CLEAR RESERVATION STATUS UX
+==================================================
+
+Make the reservation lifecycle visually obvious.
+
+Use a clear status timeline:
+
+PENDING
+↓
+CONFIRMED
+↓
+READY
+↓
+COLLECTED
+
+Alternative terminal states:
+
+EXPIRED
+CANCELLED
+REJECTED
+
+For example:
+
+[✓] Reservation placed
+     Waiting for shop approval
+
+[✓] Reservation confirmed
+     Pickup countdown started
+
+[ ] Ready for pickup
+
+[ ] Collected
+
+The customer should never be confused about what is happening.
+
+When the shopkeeper approves:
+
+Show a prominent message:
+
+"Reservation Confirmed"
+
+"Your item has been reserved by the shop."
+
+"Pickup within 29:42"
+
+When shopkeeper marks it ready:
+
+"Ready for Pickup"
+
+"Your order is ready. Show your pickup details/QR at the shop."
+
+When collected:
+
+"Reservation Completed"
+
+"Your digital receipt is ready."
+
+When rejected:
+
+"Reservation Rejected"
+
+Show the reason if the shopkeeper provides one.
+
+When expired:
+
+"Reservation Expired"
+
+"Your reservation hold has ended."
+
+==================================================
+10. CUSTOMER RESERVATION PAGE
+==================================================
+
+Improve the existing reservation page rather than creating an unnecessary duplicate page.
+
+The reservation page should clearly display:
+
+PRODUCT
+SHOP
+QUANTITY
+PRICE
+TOTAL
+STATUS
+COUNTDOWN
+SHOP ADDRESS
+DATE/TIME
+PAYMENT METHOD
+NEXT ACTION
+
+The primary action should change according to status.
+
+Examples:
+
+PENDING:
+"Waiting for Shop Approval"
+
+CONFIRMED:
+"Pickup in 28:42"
+
+READY:
+"View Pickup Details"
+
+COLLECTED:
+"View Digital Receipt"
+"Write Review"
+
+EXPIRED:
+"Reservation Expired"
+
+Do not show irrelevant buttons.
+
+==================================================
+11. ADMIN REPORT EXPORT
+==================================================
+
+Add ONLY the requested reporting/export functionality to the existing Admin Dashboard.
+
+Admin should be able to generate reports concerning:
+
+- Product demand
+- Product requests
+- Supply/availability
+- Reservation activity
+- Popular products/categories
+- Stock shortages where data exists
+- Other existing demand/supply metrics already supported by the database
+
+Do NOT create fake analytics.
+
+Reports must use real database data or clearly labelled seeded/demo data.
+
+Add export options such as:
+
+[Generate PDF]
+[Export Excel]
+
+The exact implementation can use the existing reporting architecture or introduce a small reporting service.
+
+PDF report should have:
+
+- NearCart title
+- Report type
+- Generated date/time
+- Selected date range if applicable
+- Relevant summary statistics
+- Tables/data
+- Basic professional formatting
+
+Excel report should contain structured data in usable columns.
+
+Example demand report columns:
+
+Product
+Category
+Search Count
+Request Count
+Available Shops
+Average Local Price
+Demand Status
+
+Example supply report:
+
+Product
+Category
+Available Shops
+Total Stock
+Reserved Stock
+Available Stock
+Last Updated
+
+Only include fields that actually exist.
+
+==================================================
+12. ADMIN REPORT UI
+==================================================
+
+Inside the existing Admin Dashboard, add a small "Reports" area.
+
+Example:
+
+REPORTS
+
+Demand & Supply
+
+Report Type:
+[Demand Report ▼]
+
+Date Range:
+[Start] [End]
+
+[Generate PDF] [Export Excel]
+
+Keep this simple and professional.
+
+Do not build an enormous BI platform.
+
+==================================================
+13. BACKEND REQUIREMENTS
+==================================================
+
+Every frontend feature above must be connected to the backend.
+
+Audit:
+
+- routes
+- controllers
+- services
+- models
+- database queries
+- templates
+- JavaScript
+- API endpoints
+- permissions
+- validation
+
+Especially verify:
+
+1. Search radius actually filters results.
+2. Review eligibility is enforced server-side.
+3. Only legitimate completed customer/shop interactions can create reviews.
+4. Reservation countdown uses backend expiry time.
+5. Reservation expiry changes actual reservation state.
+6. Inventory reservation is released on expiry where applicable.
+7. Receipt is generated only for completed/collected reservations.
+8. Payment method is stored correctly.
+9. Admin reports use real data.
+10. PDF export works.
+11. Excel export works.
+12. No unauthorized user can access another customer's receipt/reservation.
+13. Shopkeeper/customer permissions remain correct.
+
+==================================================
+14. BUTTON & INTERACTION AUDIT
+==================================================
+
+While implementing these changes, inspect the Customer Dashboard for existing buttons.
+
+Every visible button must work.
+
+Do not leave:
+
+- dead buttons
+- "#"
+- fake buttons
+- nonfunctional links
+- fake countdowns
+- fake review submission
+- frontend-only validation
+- buttons that silently do nothing
+
+Check:
+
+Search
+Radius selector
+Shop cards
+Product cards
+Compare
+Reserve
+Reservation status
+Cancel
+Payment selection
+Receipt
+Review
+Navigation
+Filters
+Pagination if existing
+
+Fix only the broken interactions relevant to this customer experience.
+
+==================================================
+15. DO NOT ADD UNREQUESTED FEATURES
+==================================================
+
+This is extremely important.
+
+Do NOT add:
+
+- AI chatbot
+- voice assistant
+- image search
+- loyalty points
+- coupons
+- gamification
+- social feed
+- delivery tracking
+- advanced recommendation engine
+- business-owner redesign
+- employee management
+- unnecessary analytics
+- unnecessary new dashboards
+- unnecessary animations
+
+unless they already exist and are required for the requested changes.
+
+The goal is NOT "add everything possible."
+
+The goal is:
+
+MAKE THE EXISTING NEARCART CUSTOMER EXPERIENCE BETTER, CLEARER, MORE TRUSTWORTHY AND MORE INTERACTIVE.
+
+==================================================
+16. FINAL VALIDATION
+==================================================
+
+After implementation, test the complete flow:
+
+CUSTOMER
+
+1. Select location
+2. Select 500m radius
+3. Search product
+4. Verify only products/shops within radius appear
+5. Increase radius
+6. Verify additional nearby shops can appear
+7. Open shop card
+8. Inspect rating/availability/distance information
+9. Reserve product
+10. Select Pay at Shop or Pay Online Demo
+11. Shopkeeper approves reservation
+12. Customer sees clear "Reservation Confirmed"
+13. Countdown begins
+14. Countdown decreases in real time
+15. Shopkeeper marks reservation Ready
+16. Customer sees "Ready for Pickup"
+17. Customer completes collection
+18. Reservation becomes COLLECTED
+19. Digital receipt becomes available
+20. Customer can view receipt
+21. Customer can submit review
+22. Review is accepted because the customer completed the transaction
+
+Also test:
+
+- expired reservation
+- rejected reservation
+- cancelled reservation
+- unavailable product
+- invalid quantity
+- unauthorized review attempt
+- unauthorized receipt access
+- changing search radius
+- mobile customer dashboard
+
+ADMIN
+
+1. Open Reports
+2. Generate demand report
+3. Export PDF
+4. Export Excel
+5. Generate supply report
+6. Verify exported data matches database data
+
+==================================================
+17. FINAL RESPONSE FROM CODING AGENT
+==================================================
+
+When finished, provide:
+
+1. Customer dashboard changes
+2. Search-radius changes
+3. Shop/product card changes
+4. Review eligibility changes
+5. Reservation countdown changes
+6. Receipt changes
+7. Payment changes
+8. Admin report/export changes
+9. Database/model changes
+10. Routes/API changes
+11. Files changed
+12. Tests performed
+13. Any feature intentionally left as DEMO
+14. Any known limitations
+
+Do NOT claim something is functional if it is only mocked.
+
+Most importantly:
+
+DO NOT TURN THIS INTO A LARGE REWRITE.
+
+EXTEND THE EXISTING NEARCART APPLICATION AND IMPROVE THE SPECIFIC CUSTOMER EXPERIENCE DESCRIBED ABOVE.
