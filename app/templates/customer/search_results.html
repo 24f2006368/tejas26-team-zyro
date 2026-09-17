@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Search: {{ q }}{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+  <form action="{{ url_for('search.results') }}" method="get" class="mb-2">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search shops, products, services or food"
+           class="w-full rounded-md border border-stone-300 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-bazaar-500">
+    {% if lat %}<input type="hidden" name="lat" value="{{ lat }}"><input type="hidden" name="lon" value="{{ lon }}">{% endif %}
+  </form>
+  {% if interpreted and interpreted.ai_used %}
+    <p class="text-xs text-stone-400 mb-3">Interpreted as "{{ interpreted.cleaned_query }}"{% if interpreted.prefer_low_price %} · prioritizing lower price{% endif %}</p>
+  {% else %}
+    <p class="text-xs text-stone-400 mb-3">Showing results for "{{ q }}"</p>
+  {% endif %}
+
+  {% set radius_endpoint = "search.results" %}
+  <div class="mb-6">{% include "partials/radius_selector.html" %}</div>
+
+  {% if products %}
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="font-bold text-lg">Products ({{ products | length }})</h2>
+      <div class="flex gap-2 text-xs font-semibold">
+        {% for key, label in [("relevance","Relevance"),("price_low","Lowest Price"),("nearest","Nearest"),("rating","Highest Rated")] %}
+          <a href="{{ url_for('search.results', q=q, sort=key, lat=lat, lon=lon, radius=radius) }}"
+             class="px-2.5 py-1 rounded-md border {% if sort == key %}bg-bazaar-700 text-white border-bazaar-700{% else %}border-stone-300 text-stone-600{% endif %}">{{ label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-3 mb-10">
+      {% for p in products %}
+        <a href="{{ url_for('product.product_detail', product_id=p.id) }}" class="card p-4 flex gap-3 hover:border-bazaar-300">
+          {% if p.image %}<img src="{{ url_for('static', filename='uploads/' + p.image) }}" class="w-14 h-14 rounded-md object-cover border border-stone-200">
+          {% else %}<div class="w-14 h-14 rounded-md bg-stone-100 flex items-center justify-center text-xl">📦</div>{% endif %}
+          <div class="flex-1">
+            <div class="font-semibold text-sm">{{ p.name }}</div>
+            <div class="text-xs text-stone-500">{{ p.shop.name }}{% if p.shop.is_verified %} · <span class="text-bazaar-700">✓ Verified</span>{% endif %}</div>
+            <div class="flex items-baseline gap-2 mt-1 flex-wrap">
+              {% if p.discounted_price %}<span class="font-bold text-clay-700">₹{{ "%.0f"|format(p.discounted_price) }}</span>{% endif %}
+              {% if p.distance_km is not none %}<span class="text-xs text-stone-400">{{ p.distance_km | distance }}</span>{% endif %}
+              {% if p.rating_average %}<span class="text-xs text-stone-500">★ {{ p.rating_average }} ({{ p.review_count }})</span>{% endif %}
+            </div>
+            <span class="badge {% if p.availability_status == 'AVAILABLE' %}badge-verified{% elif p.availability_status == 'UNAVAILABLE' %}badge-danger{% else %}badge-neutral{% endif %} text-[10px] mt-1 inline-block">
+              {% if p.availability_status == 'AVAILABLE' %}Available{% elif p.availability_status == 'UNAVAILABLE' %}Out of stock{% else %}Availability unknown{% endif %}
+            </span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+    {% if products | length > 1 %}
+      <a href="{{ url_for('product.compare', q=q, lat=lat, lon=lon) }}" class="inline-block mb-10 text-sm font-semibold text-bazaar-700 hover:underline">Compare all prices for "{{ q }}" →</a>
+    {% endif %}
+  {% endif %}
+
+  {% if services %}
+    <h2 class="font-bold text-lg mb-3">Services ({{ services | length }})</h2>
+    <div class="grid sm:grid-cols-2 gap-3 mb-10">
+      {% for s in services %}
+        <a href="{{ url_for('product.service_detail', service_id=s.id) }}" class="card p-4 hover:border-bazaar-300">
+          <div class="font-semibold text-sm">{{ s.name }}</div>
+          <div class="text-xs text-stone-500">{{ s.shop.name }}</div>
+          <div class="text-xs text-stone-400 mt-1">{% if s.distance_km is not none %}{{ s.distance_km | distance }}{% endif %}</div>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if shops %}
+    <h2 class="font-bold text-lg mb-3">Shops ({{ shops | length }})</h2>
+    <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {% for shop in shops %}{% include "partials/shop_card.html" %}{% endfor %}
+    </div>
+  {% endif %}
+
+  {% if not products and not services and not shops %}
+    <div class="card p-10 text-center text-stone-500">
+      We couldn't find anything nearby for "{{ q }}". Try a broader search radius or a different keyword.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
