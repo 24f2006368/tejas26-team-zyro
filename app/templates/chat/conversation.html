@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Chat{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-6">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <div class="font-bold text-lg">
+        {% if current_user.is_customer %}{{ conversation.shop.name }}{% else %}{{ conversation.customer.name }}{% endif %}
+      </div>
+      {% if conversation.product %}
+        <div class="text-xs text-stone-500">Re: {{ conversation.product.name }} · ₹{{ "%.0f"|format(conversation.product.price) if conversation.product.price else "—" }}</div>
+      {% endif %}
+    </div>
+    {% if current_user.is_customer %}
+      <a href="{{ url_for('product.shop_profile', shop_id=conversation.shop_id) }}" class="text-sm text-bazaar-700 font-semibold hover:underline">View Shop</a>
+    {% endif %}
+  </div>
+
+  <div id="message-list" class="card p-4 h-96 overflow-y-auto flex flex-col gap-2 mb-3">
+    {% for m in conversation.messages %}
+      <div class="max-w-[75%] {% if m.sender_id == current_user.id %}self-end bg-bazaar-700 text-white{% else %}self-start bg-stone-100 text-ink{% endif %} rounded-lg px-3 py-2 text-sm">
+        {{ m.message }}
+        <div class="text-[10px] opacity-70 mt-1">{{ m.created_at | timeago }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="flex gap-2 flex-wrap mb-3 text-xs font-semibold">
+    {% if current_user.is_customer %}
+      {% for text in ["Is it available?","What is the current price?","Do you have another brand?","Can you deliver?"] %}
+        <form method="post" action="{{ url_for('chat.quick_action', conversation_id=conversation.id) }}">
+          {% include "partials/csrf.html" %}<input type="hidden" name="text" value="{{ text }}">
+          <button class="border border-stone-300 px-2.5 py-1 rounded-md hover:bg-stone-100">{{ text }}</button>
+        </form>
+      {% endfor %}
+    {% elif current_user.is_shopkeeper %}
+      {% for text in ["Available","Out of Stock","Price Updated","Ready for Pickup"] %}
+        <form method="post" action="{{ url_for('chat.quick_action', conversation_id=conversation.id) }}">
+          {% include "partials/csrf.html" %}<input type="hidden" name="text" value="{{ text }}">
+          <button class="border border-stone-300 px-2.5 py-1 rounded-md hover:bg-stone-100">{{ text }}</button>
+        </form>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <form id="send-form" class="flex gap-2">
+    <input id="message-input" placeholder="Type a message..." class="flex-1 border border-stone-300 rounded-md px-3 py-2 text-sm">
+    <button type="submit" class="bg-bazaar-700 text-white px-4 py-2 rounded-md font-semibold text-sm hover:bg-bazaar-800">Send</button>
+  </form>
+</div>
+{% endblock %}
