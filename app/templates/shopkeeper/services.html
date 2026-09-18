@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Services{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+  {% include "shopkeeper/_nav.html" %}
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-ink">Services</h1>
+    <button onclick="document.getElementById('add-service-modal').classList.remove('hidden')"
+            class="bg-bazaar-700 text-white px-4 py-2 rounded-md font-semibold text-sm hover:bg-bazaar-800">+ Add Service</button>
+  </div>
+
+  {% if not services %}
+    <div class="card p-10 text-center text-stone-500">No services listed yet.</div>
+  {% else %}
+    <div class="space-y-3">
+      {% for s in services %}
+        <div class="card p-4 flex justify-between items-center">
+          <div>
+            <div class="font-semibold">{{ s.name }}</div>
+            <div class="text-sm text-stone-500">{{ s.description or "" }}</div>
+            <div class="text-xs text-stone-400 mt-1">
+              {% if s.duration %}{{ s.duration }} · {% endif %}
+              {% if s.price %}
+                {% if s.price_type == "STARTING_FROM" %}From{% elif s.price_type == "ESTIMATE" %}Est.{% endif %}
+                ₹{{ "%.0f"|format(s.price) }}
+              {% else %}Price on request{% endif %}
+            </div>
+          </div>
+          <button onclick="openServiceEdit({{ s.id }}, '{{ s.name|e }}', `{{ s.description or ''|e }}`, {{ s.price or 0 }}, '{{ s.price_type }}', '{{ s.duration or '' }}')"
+                  class="text-bazaar-700 text-sm font-semibold hover:underline">Edit</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<div id="add-service-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="card bg-white p-6 max-w-md w-full">
+    <h2 class="font-bold text-lg mb-4">Add Service</h2>
+    <form method="post" action="{{ url_for('shopkeeper.add_service') }}" class="space-y-3">
+      {% include "partials/csrf.html" %}
+      <input name="name" placeholder="Service name *" required class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <textarea name="description" placeholder="Description" rows="2" class="w-full border border-stone-300 rounded-md px-3 py-2"></textarea>
+      <div class="grid grid-cols-3 gap-3">
+        <input type="number" step="0.01" name="price" placeholder="Price (₹)" class="w-full border border-stone-300 rounded-md px-3 py-2">
+        <select name="price_type" class="w-full border border-stone-300 rounded-md px-3 py-2">
+          <option value="FIXED">Fixed</option>
+          <option value="STARTING_FROM">Starting from</option>
+          <option value="ESTIMATE">Estimate</option>
+        </select>
+        <input name="duration" placeholder="Duration" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="document.getElementById('add-service-modal').classList.add('hidden')" class="px-4 py-2 rounded-md border border-stone-300">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-md bg-bazaar-700 text-white font-semibold">Add Service</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="edit-service-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="card bg-white p-6 max-w-md w-full">
+    <h2 class="font-bold text-lg mb-4">Edit Service</h2>
+    <form method="post" id="edit-service-form" class="space-y-3">
+      {% include "partials/csrf.html" %}
+      <input name="name" id="es-name" required class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <textarea name="description" id="es-description" rows="2" class="w-full border border-stone-300 rounded-md px-3 py-2"></textarea>
+      <div class="grid grid-cols-3 gap-3">
+        <input type="number" step="0.01" name="price" id="es-price" class="w-full border border-stone-300 rounded-md px-3 py-2">
+        <select name="price_type" id="es-price-type" class="w-full border border-stone-300 rounded-md px-3 py-2">
+          <option value="FIXED">Fixed</option>
+          <option value="STARTING_FROM">Starting from</option>
+          <option value="ESTIMATE">Estimate</option>
+        </select>
+        <input name="duration" id="es-duration" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="document.getElementById('edit-service-modal').classList.add('hidden')" class="px-4 py-2 rounded-md border border-stone-300">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-md bg-bazaar-700 text-white font-semibold">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function openServiceEdit(id, name, description, price, priceType, duration) {
+    document.getElementById('edit-service-form').action = `/shopkeeper/services/${id}/edit`;
+    document.getElementById('es-name').value = name;
+    document.getElementById('es-description').value = description;
+    document.getElementById('es-price').value = price;
+    document.getElementById('es-price-type').value = priceType;
+    document.getElementById('es-duration').value = duration;
+    document.getElementById('edit-service-modal').classList.remove('hidden');
+  }
+</script>
+{% endblock %}
