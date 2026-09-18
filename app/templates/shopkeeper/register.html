@@ -1,0 +1,249 @@
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <h1 class="text-2xl font-bold text-ink mb-1">List Your Business on NearCart</h1>
+  <p class="text-stone-500 text-sm mb-6">Get discovered by customers nearby. Start simple &mdash; you can add more later.</p>
+
+  <!-- Progress indicator -->
+  <div class="mb-8">
+    <div class="flex items-center gap-1.5 mb-3" id="progress-dots" role="progressbar" aria-valuemin="1" aria-valuemax="9" aria-valuenow="1">
+        <span class="progress-dot flex-1" data-step="{{ loop.index }}" aria-hidden="true"></span>
+    </div>
+    <div class="text-xs font-semibold text-stone-500" id="step-caption" aria-live="polite">
+      Step <span id="step-caption-num">1</span> of 9 &middot; <span id="step-caption-label">Owner</span>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="card p-6" id="register-form" novalidate>
+    <input type="hidden" name="registration_method" value="SELF">
+
+    <!-- Step 1: Owner -->
+    <section class="step" data-step="1" aria-labelledby="step1-h">
+      <h2 id="step1-h" class="font-bold text-lg mb-1">Owner information</h2>
+      <p class="text-sm text-stone-500 mb-4">Tell us who we're talking to.</p>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label for="owner_name" class="field-label">Owner name <span class="req">*</span></label>
+          <input id="owner_name" name="owner_name" data-required value="{{ form.get('owner_name','') if form else '' }}"
+                 placeholder="e.g. Priya Sharma" class="field-input" aria-describedby="err-owner_name">
+          <p class="field-error" id="err-owner_name"></p>
+        </div>
+        <div>
+          <label for="owner_address" class="field-label">Owner address <span class="opt">(optional)</span></label>
+          <input id="owner_address" name="owner_address" value="{{ form.get('owner_address','') if form else '' }}" class="field-input">
+        </div>
+        <div>
+          <label for="owner_phone" class="field-label">Phone number</label>
+          <input id="owner_phone" name="owner_phone" data-required-group="contact" value="{{ form.get('owner_phone','') if form else '' }}"
+                 placeholder="10-digit mobile number" class="field-input" aria-describedby="err-contact">
+        </div>
+        <div>
+          <label for="owner_email" class="field-label">Email</label>
+          <input id="owner_email" type="email" name="owner_email" data-required-group="contact" value="{{ form.get('owner_email','') if form else '' }}"
+                 placeholder="you@example.com" class="field-input" aria-describedby="err-contact">
+        </div>
+        <div class="sm:col-span-2">
+          <p class="field-error" id="err-contact">Provide at least one of phone or email.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2: Shop -->
+    <section class="step hidden" data-step="2" aria-labelledby="step2-h">
+      <h2 id="step2-h" class="font-bold text-lg mb-1">Shop information</h2>
+      <p class="text-sm text-stone-500 mb-4">The basics customers will see first.</p>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label for="shop_name" class="field-label">Shop name <span class="req">*</span></label>
+          <input id="shop_name" name="shop_name" data-required value="{{ form.get('shop_name','') if form else '' }}"
+                 placeholder="e.g. Gupta Electronics" class="field-input" aria-describedby="err-shop_name">
+          <p class="field-error" id="err-shop_name"></p>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="description" class="field-label">Description <span class="opt">(optional)</span></label>
+          <textarea id="description" name="description" rows="2" placeholder="What makes your shop worth a visit?"
+                    class="field-input">{{ form.get('description','') if form else '' }}</textarea>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="address" class="field-label">Address <span class="opt">(optional)</span></label>
+          <input id="address" name="address" value="{{ form.get('address','') if form else '' }}" class="field-input">
+        </div>
+        <div>
+          <label for="locality" class="field-label">Locality <span class="opt">(optional)</span></label>
+          <input id="locality" name="locality" value="{{ form.get('locality','') if form else '' }}" class="field-input">
+        </div>
+        <div>
+          <label for="city" class="field-label">City <span class="opt">(optional)</span></label>
+          <input id="city" name="city" value="{{ form.get('city','') if form else '' }}" class="field-input">
+        </div>
+        <div>
+          <label for="pincode" class="field-label">PIN code <span class="opt">(optional)</span></label>
+          <input id="pincode" name="pincode" value="{{ form.get('pincode','') if form else '' }}" class="field-input">
+        </div>
+        <div>
+          <label for="working_days" class="field-label">Working days <span class="opt">(optional)</span></label>
+          <input id="working_days" name="working_days" placeholder="Mon&ndash;Sat" value="{{ form.get('working_days','') if form else '' }}" class="field-input">
+        </div>
+        <div>
+          <label for="opening_time" class="field-label">Opening time <span class="opt">(optional)</span></label>
+          <input id="opening_time" type="time" name="opening_time" value="{{ form.get('opening_time','') if form else '' }}" class="field-input">
+        </div>
+        <div>
+          <label for="closing_time" class="field-label">Closing time <span class="opt">(optional)</span></label>
+          <input id="closing_time" type="time" name="closing_time" value="{{ form.get('closing_time','') if form else '' }}" class="field-input">
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3: Category -->
+    <section class="step hidden" data-step="3" aria-labelledby="step3-h">
+      <h2 id="step3-h" class="font-bold text-lg mb-1">Category</h2>
+      <p class="text-sm text-stone-500 mb-4">Don't see an exact fit? Choose "Other" and tell us in your own words.</p>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label for="category_id" class="field-label">Category <span class="req">*</span></label>
+          <select id="category_id" name="category_id" data-required
+                  data-other-category-id="{{ other_category.id if other_category else '' }}"
+                  class="field-input" aria-describedby="err-category_id">
+            <option value="">Choose category</option>
+              <option value="{{ c.id }}" {% if form and form.get('category_id')|string == c.id|string %}selected{% endif %}>{{ c.name if c.type != 'OTHER' else 'Other' }}</option>
+          </select>
+          <p class="field-error" id="err-category_id"></p>
+        </div>
+        <div>
+          <label for="subcategory_id" class="field-label">Subcategory <span class="opt">(optional)</span></label>
+          <select id="subcategory_id" name="subcategory_id" class="field-input">
+            <option value="">None</option>
+          </select>
+          <p class="text-xs text-stone-400 mt-1" id="subcategory-hint">Choose a category first.</p>
+        </div>
+        <div class="sm:col-span-2 hidden" id="custom-category-wrap">
+          <label for="custom_category_name" class="field-label">Enter your category <span class="req">*</span></label>
+          <input id="custom_category_name" name="custom_category_name" placeholder="e.g. Printing &amp; Lamination"
+                 value="{{ form.get('custom_category_name','') if form else '' }}" class="field-input" aria-describedby="err-custom_category_name">
+          <p class="field-error" id="err-custom_category_name"></p>
+        </div>
+        <div class="sm:col-span-2 hidden" id="custom-subcategory-wrap">
+          <label for="custom_subcategory_name" class="field-label">Enter your subcategory <span class="req">*</span></label>
+          <input id="custom_subcategory_name" name="custom_subcategory_name" placeholder="e.g. Screen Protectors"
+                 value="{{ form.get('custom_subcategory_name','') if form else '' }}" class="field-input" aria-describedby="err-custom_subcategory_name">
+          <p class="field-error" id="err-custom_subcategory_name"></p>
+        </div>
+      </div>
+      <!-- Subcategory data, grouped by parent category id, rendered server-side so JS never trusts stale options -->
+      <script type="application/json" id="subcategory-data">
+        
+      </script>
+    </section>
+
+    <!-- Step 4: Offerings -->
+    <section class="step hidden" data-step="4" aria-labelledby="step4-h">
+      <h2 id="step4-h" class="font-bold text-lg mb-1">What do you offer?</h2>
+      <p class="text-sm text-stone-500 mb-2">One item per line. You don't need exact prices or stock &mdash; just what you sell or do.</p>
+      <textarea name="offerings" rows="6" placeholder="Chargers&#10;USB Cables&#10;Earphones&#10;Power Banks"
+                class="field-input">{{ form.get('offerings','') if form else '' }}</textarea>
+      <p class="text-xs text-stone-400 mt-2">You can add what you offer later from your dashboard.</p>
+    </section>
+
+    <!-- Step 5: Documents -->
+    <section class="step hidden" data-step="5" aria-labelledby="step5-h">
+      <h2 id="step5-h" class="font-bold text-lg mb-1">Business verification <span class="opt">(optional)</span></h2>
+      <p class="text-sm text-stone-500 mb-4">Upload any one official document if you have it. GST is not required for small businesses.</p>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label for="document_type" class="field-label">Document type</label>
+          <select id="document_type" name="document_type" class="field-input">
+            <option value="PAN">PAN</option>
+            <option value="GST">GST</option>
+            <option value="SHOP_REGISTRATION">Shop registration</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="document_number" class="field-label">Document number</label>
+          <input id="document_number" name="document_number" value="{{ form.get('document_number','') if form else '' }}" class="field-input">
+        </div>
+        <div class="sm:col-span-2">
+          <label for="document_file" class="field-label">Upload document (PDF/PNG/JPG)</label>
+          <input id="document_file" type="file" name="document_file" accept=".pdf,.png,.jpg,.jpeg" class="field-input">
+        </div>
+      </div>
+      <p class="text-xs text-stone-400 mt-3">Documents are kept private and are only reviewed by NearCart admins. You can skip this and add it later.</p>
+    </section>
+
+    <!-- Step 6: Images -->
+    <section class="step hidden" data-step="6" aria-labelledby="step6-h">
+      <h2 id="step6-h" class="font-bold text-lg mb-1">Shop images <span class="opt">(optional)</span></h2>
+      <p class="text-sm text-stone-500 mb-4">You can add better shop photos later from your dashboard.</p>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label for="image_front" class="field-label">Shop front</label>
+          <input id="image_front" type="file" name="image_front" accept=".png,.jpg,.jpeg,.webp" class="field-input">
+        </div>
+        <div>
+          <label for="image_interior" class="field-label">Shop interior</label>
+          <input id="image_interior" type="file" name="image_interior" accept=".png,.jpg,.jpeg,.webp" class="field-input">
+        </div>
+        <div>
+          <label for="image_owner" class="field-label">Owner with shop</label>
+          <input id="image_owner" type="file" name="image_owner" accept=".png,.jpg,.jpeg,.webp" class="field-input">
+        </div>
+        <div>
+          <label for="image_signboard" class="field-label">Signboard <span class="opt">(optional)</span></label>
+          <input id="image_signboard" type="file" name="image_signboard" accept=".png,.jpg,.jpeg,.webp" class="field-input">
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 7: Location -->
+    <section class="step hidden" data-step="7" aria-labelledby="step7-h">
+      <h2 id="step7-h" class="font-bold text-lg mb-1">Location <span class="req">*</span></h2>
+      <p class="text-sm text-stone-500 mb-3">A local discovery platform needs to know where you are.</p>
+      <button type="button" onclick="useCurrentLocationForRegister()" class="inline-flex items-center gap-1.5 text-sm font-semibold text-bazaar-700 hover:underline mb-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bazaar-700 rounded-sm">
+        Use my current location
+      </button>
+      <div id="register-map" class="h-72 rounded-md border border-stone-300 mb-2"></div>
+      <p class="text-xs text-stone-500 mb-3">Drag the marker, or click the map, to fine-tune the exact spot.</p>
+      <input type="hidden" name="latitude" id="reg-lat" data-required>
+      <input type="hidden" name="longitude" id="reg-lon" data-required>
+      <p class="field-error" id="err-location"></p>
+    </section>
+
+    <!-- Step 8: Password -->
+    <section class="step hidden" data-step="8" aria-labelledby="step8-h">
+      <h2 id="step8-h" class="font-bold text-lg mb-1">Account credentials</h2>
+      <p class="text-sm text-stone-500 mb-4">You'll use this to log in to your shopkeeper dashboard.</p>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label for="password" class="field-label">Password <span class="req">*</span></label>
+          <input id="password" type="password" name="password" data-required minlength="6" class="field-input" aria-describedby="err-password">
+          <p class="field-error" id="err-password"></p>
+        </div>
+        <div>
+          <label for="confirm_password" class="field-label">Confirm password <span class="req">*</span></label>
+          <input id="confirm_password" type="password" name="confirm_password" data-required minlength="6" class="field-input" aria-describedby="err-confirm_password">
+          <p class="field-error" id="err-confirm_password"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 9: Review -->
+    <section class="step hidden" data-step="9" aria-labelledby="step9-h">
+      <h2 id="step9-h" class="font-bold text-lg mb-1">Review &amp; submit</h2>
+      <p class="text-sm text-stone-600 mb-4">Once submitted, a NearCart admin will review your details and documents.
+        Your listing appears as <span class="badge badge-pending">Pending Verification</span> until approved &mdash;
+        you can still add products and explore your dashboard while you wait.</p>
+      <div class="space-y-2" id="review-rows"></div>
+    </section>
+
+    <div class="flex justify-between items-center mt-8 pt-4 border-t border-stone-200">
+      <button type="button" id="btn-prev" class="px-4 py-2 rounded-md border border-stone-300 text-stone-600 hover:bg-stone-100 transition-colors" onclick="regStep(-1)">Back</button>
+      <button type="button" id="btn-next" class="px-4 py-2 rounded-md bg-bazaar-700 text-white font-semibold hover:bg-bazaar-800 transition-colors" onclick="regStep(1)">Next</button>
+      <button type="submit" id="btn-submit" class="hidden px-4 py-2 rounded-md bg-clay-600 text-white font-semibold hover:bg-clay-700 transition-colors">Submit for Verification</button>
+    </div>
+  </form>
+
+  <div class="mt-6 text-sm text-stone-500 text-center">
+    Already registered? <a href="{{ url_for('auth.login') }}" class="text-bazaar-700 font-semibold hover:underline">Log in</a>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
