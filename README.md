@@ -77,51 +77,50 @@ NearCart is a digital discovery layer for the local bazaar. It helps customers f
 ## Main Functional Flow
 
 ```text
-CUSTOMER
-Search / Discover
-      â†“
-Nearby Businesses + Map
-      â†“
-Compare Price / Distance / Availability
-      â†“
-Chat with Business
-      â†“
-Merchant Confirms Availability
-      â†“
-Reserve
-      â†“
-Product Ready
-      â†“
- â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
- â”‚               â”‚
-Pickup        Delivery
- â”‚               â”‚
- â†“               â†“
-Collect        Partner Pickup
- â”‚               â†“
- â””â”€â”€â”€â”€â”€â”€â”€â”€â†’ Customer
-            â†“
-         Fulfilled
-```
-
+User Opens NearCart
+        ↓
+User Registration / Login
+        ↓
+Location Access / Location Selection
+        ↓
+Discover Nearby Businesses & Products
+        ↓
+Search / Filter / Compare Products
+        ↓
+View Product & Business Details
+        ↓
+Check Availability & Price
+        ↓
+Select Product / Add to Cart
+        ↓
+Place Order / Continue with Local Store
+        ↓
+Order Processing
+        ↓
+Order Status & Updates
 ## Business Lifecycle
 
 ```text
-DISCOVERED
-   â†“
-LISTED
-   â†“
-CLAIMED
-   â†“
-VERIFIED
-   â†“
-OFFERINGS / PRODUCTS
-   â†“
-CHAT
-   â†“
-RESERVATION
-   â†“
-PICKUP / DELIVERY
+Business Registration
+        ↓
+Business Verification
+        ↓
+Store Profile Setup
+        ↓
+Product & Category Management
+        ↓
+Product Listing & Availability
+        ↓
+Customer Discovery
+        ↓
+Customer Interaction / Orders
+        ↓
+Order Fulfillment
+        ↓
+Business Performance Monitoring
+        ↓
+Profile & Product Updates
+        ↺
 ```
 
 ## Technology Stack
