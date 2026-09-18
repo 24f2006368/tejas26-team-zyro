@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <a href="{{ url_for('product.shop_profile', shop_id=product.shop_id) }}" class="text-sm text-stone-500 hover:underline">← {{ product.shop.name }}</a>
+
+  <div class="grid md:grid-cols-2 gap-8 mt-4">
+    <div>
+      {% if product.image %}
+        <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="w-full rounded-lg border border-stone-200 object-cover aspect-square">
+      {% else %}
+        <div class="w-full aspect-square rounded-lg bg-stone-100 flex items-center justify-center text-5xl">📦</div>
+      {% endif %}
+    </div>
+    <div>
+      <h1 class="text-2xl font-bold text-ink">{{ product.name }}</h1>
+      <div class="text-sm text-stone-500 mt-1">{{ product.brand or "" }}{% if product.category %} · {{ product.category.name }}{% endif %}</div>
+
+      <div class="flex items-baseline gap-3 mt-4">
+        {% if product.discount_percent %}
+          <span class="text-stone-400 line-through text-lg">₹{{ "%.0f"|format(product.price) }}</span>
+          <span class="text-2xl font-extrabold text-clay-700">₹{{ "%.0f"|format(product.discounted_price) }}</span>
+          <span class="badge badge-pending">{{ product.discount_percent|int }}% OFF</span>
+        {% elif product.price %}
+          <span class="text-2xl font-extrabold">₹{{ "%.0f"|format(product.price) }}</span>
+        {% else %}
+          <span class="text-stone-400">Price on request — chat with the shop</span>
+        {% endif %}
+      </div>
+      <div class="text-xs text-stone-400 mt-1">Price updated {{ product.price_updated_at | timeago }}</div>
+
+      <div class="flex items-center gap-3 mt-2 text-sm">
+        {% if product.rating_average %}<span class="star-rating">★ {{ product.rating_average }}</span> <span class="text-stone-400">({{ product.review_count }} reviews)</span>{% endif %}
+        <span class="badge {% if product.availability_status == 'AVAILABLE' %}badge-verified{% elif product.availability_status == 'UNAVAILABLE' %}badge-danger{% else %}badge-neutral{% endif %}">
+          {% if product.availability_status == 'AVAILABLE' %}Available{% elif product.availability_status == 'UNAVAILABLE' %}Out of Stock{% else %}Availability Unknown — Ask Shop{% endif %}
+        </span>
+      </div>
+
+      {% if product.description %}<p class="text-sm text-stone-600 mt-4">{{ product.description }}</p>{% endif %}
+
+      <div class="flex flex-col gap-2 mt-6">
+        <form method="post" action="{{ url_for('chat.start') }}">
+          {% include "partials/csrf.html" %}
+          <input type="hidden" name="shop_id" value="{{ product.shop_id }}">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          <button class="w-full bg-bazaar-700 text-white px-4 py-2.5 rounded-md font-semibold text-sm hover:bg-bazaar-800">💬 Chat with Shopkeeper</button>
+        </form>
+        <button onclick="document.getElementById('reserve-modal').classList.remove('hidden')"
+                class="w-full border border-bazaar-600 text-bazaar-700 px-4 py-2.5 rounded-md font-semibold text-sm hover:bg-bazaar-50">📦 Reserve</button>
+        <form method="post" action="{{ url_for('customer.save_item') }}">
+          {% include "partials/csrf.html" %}
+          <input type="hidden" name="item_type" value="PRODUCT"><input type="hidden" name="product_id" value="{{ product.id }}">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <button class="w-full border border-stone-300 px-4 py-2.5 rounded-md font-semibold text-sm hover:bg-stone-100">{{ "★ Saved" if is_saved else "☆ Save" }}</button>
+        </form>
+        <a href="{{ url_for('product.compare', q=product.name) }}" class="text-center text-sm font-semibold text-bazaar-700 hover:underline">Compare prices at other shops →</a>
+      </div>
+    </div>
+  </div>
+
+  {% if alternatives %}
+    <div class="mt-10">
+      <h2 class="font-bold text-lg mb-3">Also available nearby</h2>
+      <div class="grid sm:grid-cols-3 gap-3">
+        {% for alt in alternatives %}
+          <a href="{{ url_for('product.product_detail', product_id=alt.id) }}" class="card p-3 hover:border-bazaar-300">
+            <div class="font-semibold text-sm">{{ alt.shop.name }}</div>
+            <div class="text-sm font-bold text-clay-700">₹{{ "%.0f"|format(alt.discounted_price) if alt.discounted_price else "—" }}</div>
+            <div class="text-xs text-stone-400">{{ alt.distance_km | distance if alt.distance_km is not none else "" }}</div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="mt-10">
+    <h2 class="font-bold text-lg mb-3">Reviews</h2>
+    {% if already_reviewed %}
+      <div class="card p-4 mb-4 text-sm text-stone-600 flex items-center gap-2">
+        <span class="badge badge-verified">✓ Reviewed</span> You've already shared your experience with this product.
+      </div>
+    {% elif can_review %}
+      <form method="post" action="{{ url_for('review.submit') }}" class="card p-4 mb-4" data-star-group>
+        {% include "partials/csrf.html" %}
+        <input type="hidden" name="shop_id" value="{{ product.shop_id }}">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <input type="hidden" name="rating" value="5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="badge badge-verified">✓ Verified purchase</span>
+        </div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-sm font-semibold">Your rating:</span>
+          <span class="star-rating text-lg">{% for i in range(1,6) %}<span data-star="{{ i }}" class="cursor-pointer">★</span>{% endfor %}</span>
+        </div>
+        <textarea name="review_text" rows="2" placeholder="How was this product?" class="w-full border border-stone-300 rounded-md px-3 py-2 text-sm mb-2"></textarea>
+        <button type="submit" class="bg-bazaar-700 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-bazaar-800">Post Review</button>
+      </form>
+    {% else %}
+      <div class="card p-4 mb-4 text-sm text-stone-500">
+        Review available after you collect a reservation of this product.
+      </div>
+    {% endif %}
+    {% if not reviews %}
+      <p class="text-sm text-stone-500">No reviews yet.</p>
+    {% else %}
+      <div class="space-y-2">
+        {% for r in reviews %}
+          <div class="card p-4">
+            <div class="star-rating">{{ "★" * r.rating }}{{ "☆" * (5 - r.rating) }}</div>
+            <div class="text-sm text-stone-600 mt-1">{{ r.review_text or "" }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="reserve-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="card bg-white p-6 max-w-sm w-full">
+    <h2 class="font-bold text-lg mb-1">Reserve {{ product.name }}</h2>
+    <p class="text-sm text-stone-500 mb-4">The shop will confirm availability before you visit.</p>
+    <form method="post" action="{{ url_for('reservation.create') }}" class="space-y-3">
+      {% include "partials/csrf.html" %}
+      <input type="hidden" name="shop_id" value="{{ product.shop_id }}">
+      <input type="hidden" name="product_id" value="{{ product.id }}">
+      <div>
+        <label class="block text-sm font-medium mb-1">Quantity</label>
+        <input type="number" name="quantity" value="1" min="1" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Note (optional)</label>
+        <input name="note" placeholder="e.g. Please keep it aside till evening" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2">Payment Method</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 border border-stone-300 rounded-md px-3 py-2 cursor-pointer hover:border-bazaar-400">
+            <input type="radio" name="payment_method" value="PAY_AT_SHOP" checked class="accent-bazaar-700">
+            <span class="text-sm font-medium">Pay at Shop</span>
+          </label>
+          <label class="flex items-center gap-2 border border-stone-300 rounded-md px-3 py-2 cursor-pointer hover:border-bazaar-400">
+            <input type="radio" name="payment_method" value="PAY_ONLINE_DEMO" class="accent-bazaar-700">
+            <span class="text-sm font-medium">Pay Online <span class="badge badge-neutral">Demo</span></span>
+          </label>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="document.getElementById('reserve-modal').classList.add('hidden')" class="px-4 py-2 rounded-md border border-stone-300 text-sm">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-md bg-bazaar-700 text-white text-sm font-semibold">Request Reservation</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
