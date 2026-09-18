@@ -1,0 +1,185 @@
+"""Controlled enums/constants for state machines used across the app."""
+
+
+class Role:
+    CUSTOMER = "customer"
+    SHOPKEEPER = "shopkeeper"
+    ADMIN = "admin"
+    DELIVERY_PARTNER = "delivery_partner"
+
+    ALL = [CUSTOMER, SHOPKEEPER, ADMIN, DELIVERY_PARTNER]
+
+
+class RegistrationMethod:
+    SELF = "SELF"
+    AGENT = "AGENT"
+
+
+class VerificationStatus:
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    CORRECTION_REQUIRED = "CORRECTION_REQUIRED"
+    SUSPENDED = "SUSPENDED"
+
+    ALL = [PENDING, APPROVED, REJECTED, CORRECTION_REQUIRED, SUSPENDED]
+
+
+class ProductStatus:
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+
+
+class AvailabilityStatus:
+    UNKNOWN = "UNKNOWN"
+    AVAILABLE = "AVAILABLE"
+    UNAVAILABLE = "UNAVAILABLE"
+
+    ALL = [UNKNOWN, AVAILABLE, UNAVAILABLE]
+
+
+class ReservationStatus:
+    PENDING = "PENDING"
+    CONFIRMED = "CONFIRMED"
+    READY = "READY"
+    FULFILLED = "FULFILLED"
+    CANCELLED = "CANCELLED"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
+
+    # Explicit allowed transitions (state machine, doc section 64/30/23).
+    # CONFIRMED/READY -> EXPIRED is the automatic pickup-countdown timeout
+    # (see reservation_service.sync_expiry).
+    TRANSITIONS = {
+        PENDING: {CONFIRMED, REJECTED, CANCELLED, EXPIRED},
+        CONFIRMED: {READY, CANCELLED, EXPIRED},
+        READY: {FULFILLED, CANCELLED, EXPIRED},
+        FULFILLED: set(),
+        CANCELLED: set(),
+        REJECTED: set(),
+        EXPIRED: set(),
+    }
+
+
+class PaymentMethod:
+    PAY_AT_SHOP = "PAY_AT_SHOP"
+    PAY_ONLINE_DEMO = "PAY_ONLINE_DEMO"
+
+    ALL = [PAY_AT_SHOP, PAY_ONLINE_DEMO]
+
+
+class PaymentStatus:
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+    PENDING = "PENDING"
+    PAID_DEMO = "PAID_DEMO"
+
+
+class FulfilmentType:
+    PICKUP = "PICKUP"
+    DELIVERY = "DELIVERY"
+
+
+class DeliveryStatus:
+    REQUESTED = "REQUESTED"
+    ASSIGNED = "ASSIGNED"
+    ACCEPTED = "ACCEPTED"
+    AT_SHOP = "AT_SHOP"
+    PICKED_UP = "PICKED_UP"
+    OUT_FOR_DELIVERY = "OUT_FOR_DELIVERY"
+    DELIVERED = "DELIVERED"
+    CANCELLED = "CANCELLED"
+
+    TRANSITIONS = {
+        REQUESTED: {ASSIGNED, CANCELLED},
+        ASSIGNED: {ACCEPTED, CANCELLED},
+        ACCEPTED: {AT_SHOP, CANCELLED},
+        AT_SHOP: {PICKED_UP, CANCELLED},
+        PICKED_UP: {OUT_FOR_DELIVERY},
+        OUT_FOR_DELIVERY: {DELIVERED},
+        DELIVERED: set(),
+        CANCELLED: set(),
+    }
+
+
+class ImageType:
+    FRONT = "FRONT"
+    INTERIOR = "INTERIOR"
+    OWNER = "OWNER"
+    SIGNBOARD = "SIGNBOARD"
+    OTHER = "OTHER"
+
+
+class DocumentType:
+    PAN = "PAN"
+    GST = "GST"
+    SHOP_REGISTRATION = "SHOP_REGISTRATION"
+    OTHER = "OTHER"
+
+
+class ReviewTargetType:
+    SHOP = "SHOP"
+    PRODUCT = "PRODUCT"
+    SERVICE = "SERVICE"
+
+
+class ReviewStatus:
+    ACTIVE = "ACTIVE"
+    REPORTED = "REPORTED"
+    UNDER_REVIEW = "UNDER_REVIEW"
+    REMOVED = "REMOVED"
+
+
+class ReportStatus:
+    OPEN = "OPEN"
+    UNDER_REVIEW = "UNDER_REVIEW"
+    RESOLVED = "RESOLVED"
+    DISMISSED = "DISMISSED"
+
+
+class ReportType:
+    WRONG_BUSINESS = "WRONG_BUSINESS"
+    WRONG_LOCATION = "WRONG_LOCATION"
+    WRONG_PRICE = "WRONG_PRICE"
+    INCORRECT_PRODUCT = "INCORRECT_PRODUCT"
+    FAKE_LISTING = "FAKE_LISTING"
+    SPAM = "SPAM"
+    INAPPROPRIATE_REVIEW = "INAPPROPRIATE_REVIEW"
+    DUPLICATE_LISTING = "DUPLICATE_LISTING"
+
+    ALL = [
+        WRONG_BUSINESS, WRONG_LOCATION, WRONG_PRICE, INCORRECT_PRODUCT,
+        FAKE_LISTING, SPAM, INAPPROPRIATE_REVIEW, DUPLICATE_LISTING,
+    ]
+
+
+class CategoryType:
+    SHOP = "SHOP"
+    SERVICE = "SERVICE"
+    FOOD = "FOOD"
+    SPECIALTY = "SPECIALTY"
+    OTHER = "OTHER"
+
+    ALL = [SHOP, SERVICE, FOOD, SPECIALTY, OTHER]
+
+    # Types shown as selectable business categories during registration.
+    REGISTRABLE = [SHOP, SERVICE, FOOD, OTHER]
+
+
+class NotificationType:
+    RESERVATION_REQUESTED = "RESERVATION_REQUESTED"
+    RESERVATION_CONFIRMED = "RESERVATION_CONFIRMED"
+    RESERVATION_REJECTED = "RESERVATION_REJECTED"
+    ORDER_READY = "ORDER_READY"
+    MERCHANT_REPLIED = "MERCHANT_REPLIED"
+    DELIVERY_ASSIGNED = "DELIVERY_ASSIGNED"
+    DELIVERY_COMPLETED = "DELIVERY_COMPLETED"
+    NEW_CHAT = "NEW_CHAT"
+    NEW_REVIEW = "NEW_REVIEW"
+    BUSINESS_VERIFIED = "BUSINESS_VERIFIED"
+    BUSINESS_REJECTED = "BUSINESS_REJECTED"
+
+
+class SavedItemType:
+    SHOP = "SHOP"
+    PRODUCT = "PRODUCT"
+    SERVICE = "SERVICE"
