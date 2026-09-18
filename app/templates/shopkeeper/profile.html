@@ -1,0 +1,73 @@
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-ink mb-6">Shop Profile</h1>
+
+  <form method="post" class="card p-6 space-y-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Shop name</label>
+      <input name="shop_name" value="{{ shop.name }}" class="w-full border border-stone-300 rounded-md px-3 py-2">
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">Description</label>
+      <textarea name="description" rows="3" class="w-full border border-stone-300 rounded-md px-3 py-2">{{ shop.description or "" }}</textarea>
+    </div>
+    <div class="grid sm:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Address</label>
+        <input name="address" value="{{ shop.address or '' }}" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Locality</label>
+        <input name="locality" value="{{ shop.locality or '' }}" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">City</label>
+        <input name="city" value="{{ shop.city or '' }}" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+    </div>
+    <div class="grid sm:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">PIN code</label>
+        <input name="pincode" value="{{ shop.pincode or '' }}" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Opening time</label>
+        <input type="time" name="opening_time" value="{{ shop.opening_time or '' }}" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Closing time</label>
+        <input type="time" name="closing_time" value="{{ shop.closing_time or '' }}" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+    </div>
+    <div>
+      <label class="block text-sm font-medium mb-1">Working days</label>
+      <input name="working_days" value="{{ shop.working_days or '' }}" class="w-full border border-stone-300 rounded-md px-3 py-2">
+    </div>
+
+    <div>
+      <label class="flex items-center gap-2 text-sm font-medium">
+        <input type="checkbox" name="delivery_enabled" {% if shop.delivery_enabled %}checked{% endif %}>
+        Offer local delivery (in addition to self pickup)
+      </label>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Location</label>
+      <div id="profile-map" class="h-64 rounded-md border border-stone-300"></div>
+      <input type="hidden" name="latitude" id="p-lat" value="{{ shop.latitude }}">
+      <input type="hidden" name="longitude" id="p-lon" value="{{ shop.longitude }}">
+    </div>
+
+    <button type="submit" class="bg-bazaar-700 text-white px-5 py-2.5 rounded-md font-semibold hover:bg-bazaar-800">Save changes</button>
+  </form>
+</div>
+<script>
+  const startLatLng = [{{ shop.latitude }}, {{ shop.longitude }}];
+  const pMap = L.map('profile-map').setView(startLatLng, 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: 'OpenStreetMap contributors', maxZoom: 19 }).addTo(pMap);
+  const pMarker = L.marker(startLatLng, { draggable: true }).addTo(pMap);
+  pMarker.on('dragend', () => {
+    const ll = pMarker.getLatLng();
+    document.getElementById('p-lat').value = ll.lat.toFixed(6);
+    document.getElementById('p-lon').value = ll.lng.toFixed(6);
+  });
+</script>
