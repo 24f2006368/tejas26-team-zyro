@@ -1,0 +1,13 @@
+<div class="flex flex-wrap gap-2 mb-6 text-sm font-semibold">
+  {% set links = [
+    ("shopkeeper.home","Home"),("shopkeeper.products","Products"),("shopkeeper.services","Services"),
+    ("shopkeeper.reservations","Reservations"),("shopkeeper.messages","Messages"),
+    ("shopkeeper.reviews","Reviews"),("shopkeeper.profile","Shop Profile")
+  ] %}
+  {% for endpoint, label in links %}
+    <a href="{{ url_for(endpoint) }}"
+       class="px-3 py-1.5 rounded-md border {% if request.endpoint == endpoint %}bg-bazaar-700 text-white border-bazaar-700{% else %}border-stone-300 text-stone-600 hover:bg-stone-100{% endif %}">
+      {{ label }}
+    </a>
+  {% endfor %}
+</div>
