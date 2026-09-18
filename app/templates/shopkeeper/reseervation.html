@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Reservations{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+  {% include "shopkeeper/_nav.html" %}
+  <h1 class="text-2xl font-bold text-ink mb-6">Reservations</h1>
+
+  <div class="flex gap-2 mb-6 text-sm font-semibold">
+    {% for key, label in [("pending","Pending"),("confirmed","Confirmed"),("ready","Ready"),("completed","Completed")] %}
+      <a href="{{ url_for('shopkeeper.reservations', tab=key) }}"
+         class="px-3 py-1.5 rounded-md border {% if tab == key %}bg-bazaar-700 text-white border-bazaar-700{% else %}border-stone-300 text-stone-600 hover:bg-stone-100{% endif %}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  {% if not reservations %}
+    <div class="card p-10 text-center text-stone-500">Your reservations will appear here.</div>
+  {% else %}
+    <div class="space-y-3">
+      {% for r in reservations %}
+        <div class="card p-4 flex justify-between items-start flex-wrap gap-3">
+          <div>
+            <div class="font-semibold">{{ r.product.name if r.product else "General reservation" }} <span class="text-stone-400 font-normal">×{{ r.quantity }}</span></div>
+            <div class="text-sm text-stone-500">{{ r.customer.name }} · requested {{ r.requested_at | timeago }}</div>
+            {% if r.note %}<div class="text-sm text-stone-600 mt-1">"{{ r.note }}"</div>{% endif %}
+            {% if r.fulfilment_type %}<span class="badge badge-neutral mt-1 inline-block">{{ r.fulfilment_type }}</span>{% endif %}
+            {% if r.rejection_reason %}<div class="text-xs text-red-600 mt-1">Rejected: {{ r.rejection_reason }}</div>{% endif %}
+          </div>
+          <div class="flex gap-2">
+            {% if tab == "pending" %}
+              <form method="post" action="{{ url_for('shopkeeper.reservation_action', reservation_id=r.id, action='confirm') }}">
+                {% include "partials/csrf.html" %}<input type="hidden" name="tab" value="pending">
+                <button class="bg-bazaar-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-bazaar-800">Confirm</button>
+              </form>
+              <form method="post" action="{{ url_for('shopkeeper.reservation_action', reservation_id=r.id, action='reject') }}">
+                {% include "partials/csrf.html" %}<input type="hidden" name="tab" value="pending">
+                <button class="border border-stone-300 px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-stone-100">Reject</button>
+              </form>
+            {% elif tab == "confirmed" %}
+              <form method="post" action="{{ url_for('shopkeeper.reservation_action', reservation_id=r.id, action='ready') }}">
+                {% include "partials/csrf.html" %}<input type="hidden" name="tab" value="confirmed">
+                <button class="bg-bazaar-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-bazaar-800">Mark Ready</button>
+              </form>
+            {% elif tab == "ready" %}
+              <form method="post" action="{{ url_for('shopkeeper.reservation_action', reservation_id=r.id, action='complete') }}">
+                {% include "partials/csrf.html" %}<input type="hidden" name="tab" value="ready">
+                <button class="bg-bazaar-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-bazaar-800">Mark Complete</button>
+              </form>
+            {% else %}
+              <span class="badge {% if r.status == 'FULFILLED' %}badge-verified{% else %}badge-neutral{% endif %}">{{ r.status }}</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
