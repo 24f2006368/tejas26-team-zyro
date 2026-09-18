@@ -22,6 +22,10 @@ class Shop(db.Model):
     description = db.Column(db.Text, nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
     subcategory_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=True)
+    # Free-text names used when the merchant picks the "Other" category/subcategory
+    # option instead of one of the predefined Category rows (see shopkeeper_controller.register).
+    custom_category_name = db.Column(db.String(120), nullable=True)
+    custom_subcategory_name = db.Column(db.String(120), nullable=True)
 
     address = db.Column(db.String(255), nullable=True)
     locality = db.Column(db.String(120), nullable=True, index=True)
@@ -94,6 +98,38 @@ class Shop(db.Model):
             return None
         recommended = sum(1 for r in recs if r.recommended)
         return round(100 * recommended / len(recs))
+
+    @property
+    def is_open_now(self):
+        """None when hours aren't set (unknown), else True/False. Parses the
+        simple "HH:MM" strings the merchant enters — no timezone handling
+        beyond the server's local clock, which matches the rest of this
+        prototype's opening_time/closing_time usage."""
+        if not self.opening_time or not self.closing_time:
+            return None
+        from datetime import datetime
+        try:
+            now = datetime.now().time()
+            opens = datetime.strptime(self.opening_time, "%H:%M").time()
+            closes = datetime.strptime(self.closing_time, "%H:%M").time()
+        except ValueError:
+            return None
+        if opens <= closes:
+            return opens <= now <= closes
+        # Overnight hours, e.g. 20:00 - 02:00
+        return now >= opens or now <= closes
+
+    @property
+    def display_category_name(self):
+        if self.custom_category_name:
+            return self.custom_category_name
+        return self.category.name if self.category else None
+
+    @property
+    def display_subcategory_name(self):
+        if self.custom_subcategory_name:
+            return self.custom_subcategory_name
+        return self.subcategory.name if self.subcategory else None
 
     def front_image(self):
         img = self.images.filter_by(image_type=ImageType.FRONT).first()
