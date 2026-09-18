@@ -511,3 +511,4 @@ def reviews():
                         .filter(Product.shop_id == shop.id).order_by(Review.created_at.desc()).all())
     return render_template("shopkeeper/reviews.html", shop=shop, shop_reviews=shop_reviews,
                             product_reviews=product_reviews)
+
