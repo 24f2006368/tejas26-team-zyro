@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Reviews{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+  {% include "shopkeeper/_nav.html" %}
+  <h1 class="text-2xl font-bold text-ink mb-2">Reviews</h1>
+  <div class="flex items-center gap-4 mb-6 text-sm text-stone-600">
+    <span class="font-bold text-lg">{{ shop.rating_average or "—" }}{% if shop.rating_average %}★{% endif %}</span>
+    <span>{{ shop.review_count }} reviews</span>
+    {% if shop.recommendation_percentage is not none %}
+      <span>{{ shop.recommendation_percentage }}% recommend this business</span>
+    {% endif %}
+  </div>
+
+  <h2 class="font-bold mb-3">Shop reviews</h2>
+  {% if not shop_reviews %}
+    <p class="text-sm text-stone-500 mb-6">No shop reviews yet.</p>
+  {% else %}
+    <div class="space-y-2 mb-8">
+      {% for r in shop_reviews %}
+        <div class="card p-4">
+          <div class="flex justify-between">
+            <div class="star-rating">{{ "★" * r.rating }}{{ "☆" * (5 - r.rating) }}</div>
+            <span class="text-xs text-stone-400">{{ r.created_at | timeago }}</span>
+          </div>
+          <div class="text-sm text-stone-600 mt-1">{{ r.review_text or "No comment." }}</div>
+          {% if r.verified %}<span class="badge badge-verified mt-2 inline-block">Verified interaction</span>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <h2 class="font-bold mb-3">Product reviews</h2>
+  {% if not product_reviews %}
+    <p class="text-sm text-stone-500">No product reviews yet.</p>
+  {% else %}
+    <div class="space-y-2">
+      {% for r in product_reviews %}
+        <div class="card p-4">
+          <div class="flex justify-between">
+            <div class="font-semibold text-sm">{{ r.product.name }}</div>
+            <span class="text-xs text-stone-400">{{ r.created_at | timeago }}</span>
+          </div>
+          <div class="star-rating">{{ "★" * r.rating }}{{ "☆" * (5 - r.rating) }}</div>
+          <div class="text-sm text-stone-600 mt-1">{{ r.review_text or "No comment." }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
