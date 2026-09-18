@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% import "partials/icons.html" as ic %}
+{% block title %}Your Local Bazaar, Mapped{% endblock %}
+{% block content %}
+
+<!-- ============================================================ HERO -->
+<section class="relative border-b border-stone-200 bg-white overflow-hidden">
+  <div class="max-w-6xl mx-auto px-4 py-14 md:py-20 grid md:grid-cols-2 gap-10 items-center relative">
+    <div data-reveal>
+      <span class="badge badge-neutral mb-5">{{ shop_count }}+ local businesses mapped</span>
+      <h1 class="text-4xl md:text-[3.2rem] font-extrabold tracking-tight text-ink leading-[1.05] text-balance">
+        Your Local Bazaar,<br>Mapped.
+      </h1>
+      <p class="mt-5 text-lg text-stone-600 max-w-md leading-relaxed">
+        Discover nearby shops, services, food and products. Compare options,
+        connect with local businesses, and get what you need your way.
+      </p>
+
+      <form action="{{ url_for('search.results') }}" method="get" class="mt-7 max-w-md" role="search">
+        <label for="hero-search" class="sr-only">What are you looking for?</label>
+        <div class="flex items-center gap-2 bg-white border border-stone-300 rounded-lg pl-3 pr-1.5 py-1.5 transition-shadow focus-within:ring-2 focus-within:ring-bazaar-500 focus-within:border-bazaar-500">
+          {{ ic.icon("search", "w-4 h-4 text-stone-400 shrink-0") }}
+          <input id="hero-search" type="text" name="q" placeholder="Samsung charger, mechanic, momos&hellip;"
+                 class="flex-1 min-w-0 border-0 py-2 text-sm focus:outline-none focus:ring-0 bg-transparent">
+          <button type="submit" class="shrink-0 bg-bazaar-700 text-white text-sm font-semibold px-4 py-2 rounded-md hover:bg-bazaar-800 transition-colors">
+            Search
+          </button>
+        </div>
+      </form>
+
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href="{{ url_for('auth.signup') }}" class="bg-bazaar-700 text-white px-5 py-3 rounded-md font-semibold hover:bg-bazaar-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bazaar-700">
+          Explore Near Me
+        </a>
+        <a href="{{ url_for('shopkeeper.register') }}" class="border border-clay-300 text-clay-700 px-5 py-3 rounded-md font-semibold hover:bg-clay-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay-600">
+          List Your Business
+        </a>
+      </div>
+
+      <div class="mt-8 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs font-semibold text-stone-500">
+        {% for step in ["Discover","Explore","Compare","Connect","Confirm","Reserve","Pickup/Delivery"] %}
+          <span>{{ step }}</span>
+          {% if not loop.last %}<span aria-hidden="true" class="text-stone-300">&rarr;</span>{% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="relative" data-reveal data-reveal-delay="1">
+      <div id="hero-illustration" class="relative rounded-2xl border border-stone-200 overflow-hidden bg-stone-100 aspect-square md:aspect-[4/3]">
+        <img src="{{ url_for('static', filename='img/hero-bazaar-map.png') }}"
+             alt="Illustrated map of a local bazaar with roads, shop pins and a delivery route"
+             class="absolute inset-0 w-full h-full object-cover"
+             loading="eager" width="768" height="768">
+
+        <!-- Interactive overlay pins — purely decorative, subtle motion, respects reduced-motion -->
+        <div class="hero-pin" style="top:28%; left:22%;" data-reveal-delay="2">
+          <span class="hero-pin-dot"></span>
+        </div>
+        <div class="hero-pin" style="top:58%; left:64%;" data-reveal-delay="3">
+          <span class="hero-pin-dot"></span>
+        </div>
+        <div class="hero-pin" style="top:40%; left:78%;" data-reveal-delay="4">
+          <span class="hero-pin-dot"></span>
+        </div>
+
+        <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2 rounded-lg bg-white/90 backdrop-blur-sm border border-stone-200 px-3 py-2 text-xs font-semibold text-stone-600 shadow-sm">
+          <span class="flex items-center gap-1.5">{{ ic.icon("pin", "w-3.5 h-3.5 text-bazaar-700") }} Sheikhpura Main Bazaar</span>
+          <span class="text-stone-400">Live map inside NearCart</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ HOW IT WORKS -->
+<section class="max-w-6xl mx-auto px-4 py-16 md:py-20">
+  <div class="mb-8 md:mb-10" data-reveal>
+    <h2 class="text-2xl font-bold text-ink mb-2">How NearCart works</h2>
+    <p class="text-stone-600 max-w-2xl">One simple loop, from noticing you need something to having it in hand.</p>
+  </div>
+  <div class="flex gap-3 overflow-x-auto pb-2 md:grid md:grid-cols-7 md:overflow-visible -mx-4 px-4 md:mx-0 md:px-0" data-reveal data-stagger>
+    {% for label, desc in [
+      ("Discover","See what's around you"),
+      ("Explore","Browse shops on the map"),
+      ("Compare","Check prices nearby"),
+      ("Connect","Chat with a shop"),
+      ("Confirm","Check availability"),
+      ("Reserve","Hold it before you go"),
+      ("Pickup/Delivery","Collect or get it delivered")
+    ] %}
+      <div class="step-tile shrink-0 w-40 md:w-auto">
+        <div class="text-xs font-bold text-bazaar-700 mb-2">{{ "%02d"|format(loop.index) }}</div>
+        <div class="font-semibold text-sm text-ink mb-1">{{ label }}</div>
+        <div class="text-xs text-stone-500 leading-relaxed">{{ desc }}</div>
+      </div>
+      {% if not loop.last %}
+        <div class="hidden md:flex items-center justify-center text-stone-300" aria-hidden="true">{{ ic.icon("arrow", "w-4 h-4") }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ============================================================ CORE FEATURES -->
+<section class="max-w-6xl mx-auto px-4 py-16 md:py-20 border-t border-stone-200">
+  <div class="mb-8 md:mb-10" data-reveal>
+    <h2 class="text-2xl font-bold text-ink mb-2">Everything you need to shop local</h2>
+    <p class="text-stone-600 max-w-2xl">Often you don't know which nearby shop has it, what it costs, or whether to visit or ask for delivery. NearCart fixes that.</p>
+  </div>
+  <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-4" data-reveal data-stagger>
+    {% for icon_name, title, text, href in [
+      ("map","Bazaar Map","Explore nearby shops, services and local businesses on one map.", url_for('auth.signup')),
+      ("tag","Price Comparison","See who sells it cheapest nearby, not just who's closest.", url_for('auth.signup')),
+      ("chat","Chat with Shops","Ask about availability, price or alternatives directly.", url_for('auth.signup')),
+      ("package","Reserve & Collect","Confirm availability, reserve, then pickup or get delivery.", url_for('auth.signup'))
+    ] %}
+      <a href="{{ href }}" class="feature-tile group">
+        <div class="feature-tile-icon">{{ ic.icon(icon_name, "w-5 h-5") }}</div>
+        <div class="font-semibold text-ink text-sm mb-1">{{ title }}</div>
+        <p class="text-xs text-stone-500 leading-relaxed mb-3">{{ text }}</p>
+        <span class="feature-tile-arrow">Explore {{ ic.icon("arrow", "w-3.5 h-3.5") }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ============================================================ LOCAL BAZAAR SHOWCASE -->
+<section class="max-w-6xl mx-auto px-4 py-16 md:py-20 border-t border-stone-200">
+  <div class="grid md:grid-cols-[1fr_1.2fr] gap-10 items-start">
+    <div data-reveal>
+      <span class="badge badge-neutral mb-4">Local Bazaar</span>
+      <h2 class="text-2xl font-bold text-ink mb-3">NearCart maps the whole bazaar, not just products.</h2>
+      <p class="text-stone-600 mb-6 leading-relaxed">Every shop, stall and service around you shows up as a pin &mdash;
+        electronics, food, mechanics, clothing and services alike.</p>
+      <ul class="space-y-2.5" data-stagger>
+        {% for cat in categories[:5] %}
+          <li class="flex items-center gap-2.5 text-sm text-stone-700">
+            <span class="w-1.5 h-1.5 rounded-full bg-bazaar-600 shrink-0"></span>
+            {{ cat.name }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="card p-5" data-reveal data-reveal-delay="1">
+      <div class="text-xs font-semibold text-stone-500 uppercase mb-4">Nearby in Sheikhpura Main Bazaar</div>
+      <div class="space-y-3" data-stagger>
+        {% for shop in featured_shops %}
+          <div class="flex items-center gap-3 p-3 rounded-md border border-stone-200 hover:border-bazaar-300 transition-colors">
+            <div class="icon-badge">{{ ic.icon(category_icons.get(shop.category.slug, "shop"), "w-4 h-4") }}</div>
+            <div class="min-w-0">
+              <div class="font-semibold text-sm text-ink truncate">{{ shop.name }}</div>
+              <div class="text-xs text-stone-500 truncate">
+                {{ shop.display_category_name }}{% if shop.locality %} &middot; {{ shop.locality }}{% endif %}
+                {% if shop.is_verified %} &middot; Verified{% endif %}
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <p class="text-sm text-stone-500">New businesses will appear here as they join NearCart.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ CATEGORIES -->
+<section class="max-w-6xl mx-auto px-4 py-16 md:py-20 border-t border-stone-200">
+  <div class="mb-8" data-reveal>
+    <h2 class="text-2xl font-bold text-ink mb-2">Explore by category</h2>
+    <p class="text-stone-600">Jump straight to what you're looking for.</p>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" data-reveal data-stagger>
+    {% for cat in categories %}
+      <a href="{{ url_for('auth.signup') }}" class="chip-cat card p-4 flex items-center gap-3 hover:border-bazaar-300 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bazaar-600">
+        <div class="icon-badge shrink-0">{{ ic.icon(category_icons.get(cat.slug, "shop"), "w-4 h-4") }}</div>
+        <div class="min-w-0">
+          <div class="font-semibold text-sm text-ink truncate">{{ cat.name }}</div>
+          <div class="text-xs text-stone-500">{{ cat.nearby_count }} nearby</div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ============================================================ WHY NEARCART -->
+<section class="max-w-6xl mx-auto px-4 py-16 md:py-20 border-t border-stone-200">
+  <div class="mb-8" data-reveal>
+    <h2 class="text-2xl font-bold text-ink mb-2">Why NearCart</h2>
+  </div>
+  <div class="grid sm:grid-cols-2 md:grid-cols-5 gap-5" data-reveal data-stagger>
+    {% for title, text in [
+      ("Find nearby","See what local businesses offer."),
+      ("Compare","Understand price and distance."),
+      ("Confirm","Ask the business before you travel."),
+      ("Reserve","Hold it before you go."),
+      ("Choose","Pick it up or request delivery.")
+    ] %}
+      <div>
+        <div class="font-semibold text-sm text-ink mb-1">{{ title }}</div>
+        <p class="text-xs text-stone-500 leading-relaxed">{{ text }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ============================================================ MERCHANT CTA -->
+<section class="bg-bazaar-900 text-white">
+  <div class="max-w-6xl mx-auto px-4 py-16 md:py-20 grid md:grid-cols-2 gap-10 items-center" data-reveal>
+    <div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-3 leading-tight text-balance">Your business, discoverable locally.</h2>
+      <p class="text-bazaar-100 mb-6 max-w-md leading-relaxed">
+        Start with a simple listing. Add products, services, prices, chat and reservations as you grow.
+      </p>
+      <a href="{{ url_for('shopkeeper.register') }}" class="inline-block bg-white text-bazaar-900 px-5 py-3 rounded-md font-semibold hover:bg-bazaar-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+        List Your Business
+      </a>
+    </div>
+    <div class="grid grid-cols-2 gap-3 text-sm" data-stagger>
+      {% for icon_name, label in [
+        ("map","Digital presence"),
+        ("search","Customer discovery"),
+        ("chat","Chat"),
+        ("package","Reservations")
+      ] %}
+        <div class="bg-bazaar-800 rounded-md px-3 py-3 flex items-center gap-2.5">
+          <span class="text-bazaar-200">{{ ic.icon(icon_name, "w-4 h-4") }}</span>
+          {{ label }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}
