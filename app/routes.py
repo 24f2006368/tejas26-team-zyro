@@ -24,3 +24,4 @@ def register_blueprints(app):
     app.register_blueprint(reservation_bp)
     app.register_blueprint(review_bp)
     app.register_blueprint(delivery_bp)
+
