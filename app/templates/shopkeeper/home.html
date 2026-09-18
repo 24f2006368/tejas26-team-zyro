@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Shopkeeper Home{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+  {% include "shopkeeper/_nav.html" %}
+
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3 fade-up" style="animation-delay:.02s">
+    <div>
+      <h1 class="text-2xl font-bold text-ink">{{ shop.name }}</h1>
+      <div class="flex items-center gap-2 mt-1">
+        {% if shop.verification_status == "APPROVED" %}
+          <span class="badge badge-verified">✓ Verified</span>
+        {% elif shop.verification_status == "PENDING" %}
+          <span class="badge badge-pending">Pending Verification</span>
+        {% elif shop.verification_status == "CORRECTION_REQUIRED" %}
+          <span class="badge badge-pending">Correction needed</span>
+        {% elif shop.verification_status == "REJECTED" %}
+          <span class="badge badge-danger">Rejected</span>
+        {% elif shop.verification_status == "SUSPENDED" %}
+          <span class="badge badge-danger">Suspended</span>
+        {% endif %}
+        <span class="text-sm text-stone-500">Here's how things are going today.</span>
+      </div>
+    </div>
+    <a href="{{ url_for('shopkeeper.products') }}" class="bg-bazaar-700 text-white px-4 py-2 rounded-md font-semibold hover:bg-bazaar-800 transition-colors">+ Add Product</a>
+  </div>
+
+  {% if shop.verification_status == "CORRECTION_REQUIRED" and shop.verification_notes %}
+    <div class="card p-4 mb-6 border-clay-300 bg-clay-50 text-clay-800 text-sm fade-up" style="animation-delay:.05s">
+      <strong>Admin note:</strong> {{ shop.verification_notes }}
+    </div>
+  {% endif %}
+
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" data-stagger>
+    <div class="stat-card">
+      <div class="flex items-center justify-between">
+        <span class="icon-badge">📦</span>
+      </div>
+      <div class="text-2xl font-extrabold mt-2"><span data-count="{{ product_count }}">0</span></div>
+      <div class="text-xs text-stone-500 mt-1">Products</div>
+    </div>
+    <div class="stat-card stat-card-accent">
+      <div class="flex items-center justify-between">
+        <span class="text-lg">🗓️</span>
+      </div>
+      <div class="text-2xl font-extrabold mt-2"><span data-count="{{ new_reservations }}">0</span></div>
+      <div class="stat-label text-xs mt-1">New Reservations</div>
+    </div>
+    <div class="stat-card stat-card-warm">
+      <div class="flex items-center justify-between">
+        <span class="text-lg">💬</span>
+      </div>
+      <div class="text-2xl font-extrabold mt-2"><span data-count="{{ unread_messages }}">0</span></div>
+      <div class="stat-label text-xs mt-1">Unread Messages</div>
+    </div>
+    <div class="stat-card">
+      <div class="flex items-center justify-between">
+        <span class="icon-badge">★</span>
+      </div>
+      <div class="text-2xl font-extrabold mt-2 text-ink">
+        {% if shop.rating_average %}<span data-count="{{ shop.rating_average }}" data-decimals="1">0</span>★{% else %}—{% endif %}
+      </div>
+      <div class="text-xs text-stone-500 mt-1">Shop Rating ({{ shop.review_count }})</div>
+    </div>
+  </div>
+
+  <div class="grid sm:grid-cols-4 gap-3 mb-10" data-stagger>
+    <a href="{{ url_for('shopkeeper.products') }}" class="quick-action">
+      <span class="icon-badge">📦</span>
+      <div>
+        <div class="text-sm font-semibold text-ink">Products</div>
+        <div class="text-xs text-stone-500">Manage catalog</div>
+      </div>
+    </a>
+    <a href="{{ url_for('shopkeeper.services') }}" class="quick-action">
+      <span class="icon-badge">🔧</span>
+      <div>
+        <div class="text-sm font-semibold text-ink">Services</div>
+        <div class="text-xs text-stone-500">Offerings & pricing</div>
+      </div>
+    </a>
+    <a href="{{ url_for('shopkeeper.reservations') }}" class="quick-action">
+      <span class="icon-badge">🗓️</span>
+      <div>
+        <div class="text-sm font-semibold text-ink">Reservations</div>
+        <div class="text-xs text-stone-500">{{ new_reservations }} awaiting you</div>
+      </div>
+    </a>
+    <a href="{{ url_for('shopkeeper.messages') }}" class="quick-action">
+      <span class="icon-badge">💬</span>
+      <div>
+        <div class="text-sm font-semibold text-ink">Messages</div>
+        <div class="text-xs text-stone-500">{{ unread_messages }} unread</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="card p-5 mb-10 fade-up" style="animation-delay:.1s">
+    <div class="font-bold text-ink mb-3">This week at a glance</div>
+    <div class="space-y-3">
+      <div>
+        <div class="flex justify-between text-xs text-stone-500 mb-1">
+          <span>New reservations</span><span>{{ new_reservations }}</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" data-width="{{ [new_reservations * 12, 100] | min }}%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs text-stone-500 mb-1">
+          <span>Unread messages</span><span>{{ unread_messages }}</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" data-width="{{ [unread_messages * 12, 100] | min }}%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs text-stone-500 mb-1">
+          <span>Rating ({{ shop.review_count }} reviews)</span><span>{{ shop.rating_average or "—" }}{% if shop.rating_average %}★{% endif %}</span>
+        </div>
+        <div class="meter-track"><div class="meter-fill" data-width="{{ ((shop.rating_average or 0) / 5 * 100) | round(1) }}%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="font-bold text-lg mb-3 flex items-center gap-2"><span class="icon-badge">★</span>Recent reviews</h2>
+  {% if recent_reviews %}
+    <div class="space-y-2" data-stagger>
+      {% for r in recent_reviews %}
+        <div class="card p-4 flex justify-between items-start gap-3">
+          <div class="flex gap-3">
+            <span class="avatar-circle">{{ (r.customer.name[0] if r.customer and r.customer.name else "?") | upper }}</span>
+            <div>
+              <div class="star-rating">{{ "★" * r.rating }}{{ "☆" * (5 - r.rating) }}</div>
+              <div class="text-sm text-stone-600 mt-1">{{ r.review_text or "No comment." }}</div>
+            </div>
+          </div>
+          <div class="text-xs text-stone-400 shrink-0">{{ r.created_at | timeago }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-sm text-stone-500">No reviews yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
