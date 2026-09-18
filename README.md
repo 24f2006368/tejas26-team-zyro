@@ -1,50 +1,245 @@
-# tejas26-team-zyro
-TEJAS TEAM ZYRO, NearCart is a digital map of the local bazaar that helps users discover nearby shops, products, services, and street food, compare prices, connect with merchants, check availability, reserve products, and choose self-pickup or local delivery.
-# NearCart — Your Local Bazaar, Mapped.
+# NearCart
 
-NearCart is a digital discovery and commerce prototype for local bazaars. It maps nearby shops,
-services, street-food stalls and specialties; lets customers compare prices, read reviews, chat
-with shopkeepers, confirm availability, reserve products, and choose pickup or delivery.
+**Team:** Team Zyro  
+**Project:** NearCart â€” Local Bazaar Discovery & Commerce Platform
 
-Core loop: **Discover → Explore → Compare → Connect → Confirm → Reserve → Pickup/Delivery**
+## Overview
 
-## Prototype engineering choices
+NearCart is a digital discovery layer for the local bazaar. It helps customers find nearby shops, products, services and food, compare local options, connect with businesses, confirm availability, reserve items, and choose pickup or local delivery.
 
-The build prompt specifies MySQL and Google Maps/Mapbox. For a prototype that runs with zero
-external setup, two substitutions were made — both isolated so they're swappable later:
+**Core flow:**  
+`Discover â†’ Explore â†’ Compare â†’ Connect â†’ Confirm â†’ Reserve â†’ Pickup / Delivery`
 
-- **Database:** SQLite instead of MySQL. Models are plain SQLAlchemy with no SQLite-only
-  features, so pointing `DATABASE_URL` at a `mysql+pymysql://...` URL is the only change needed.
-- **Map:** Leaflet + OpenStreetMap tiles instead of Google Maps/Mapbox (no paid API key needed).
-  All provider-specific logic lives in `app/services/map_service.py`.
+## Key Features
 
-Everything else follows the spec: Flask + Blueprints (MVC), SQLAlchemy, Flask-Login,
-Flask-SocketIO for chat, Tailwind (CDN) + Jinja2, no React, no OTP auth.
+### Customer
+- Nearby product, shop, service and food discovery
+- Map-first local search with location and distance
+- Universal search across products, businesses, services, food and categories
+- Local price comparison
+- Availability + freshness/confidence indicators
+- Open/closed business status
+- Separate business and product reviews
+- Business recommendation system
+- Chat with local businesses
+- Reservation with merchant confirmation
+- Pickup with QR/collection code
+- Optional NearCart delivery
+- Saved items, recent activity and reservation history
+- Product request when an item cannot be found
+- Trending Near You / Popular in Your Area
+- Bazaar discovery and local specialties
+- Optional AI-assisted search, voice/image search and product alternatives
 
-## Features implemented
+### Merchant / Shopkeeper
+- Business registration and claim-your-business flow
+- Verified digital business profile
+- Categories, subcategories and custom â€œOtherâ€ category
+- Business offerings: Product / Service / Food / Other
+- Product and service management
+- Optional stock and availability management
+- Price and offer management
+- Barcode-assisted product entry
+- AI-assisted product entry where available
+- Customer chat
+- Reservation management
+- Pickup / delivery handling
+- Review responses
+- Profile completeness and participation level
+- Discovery and activity analytics
 
-- Auth (customer signup, shopkeeper multi-step registration, admin), role-based access control
-- Business listing, categories, business offerings (lightweight catalogue) and detailed products/services
-- Interactive map with marker clustering, nearby search, category filters, route/ETA preview
-- Product search, price comparison across shops, product alternatives
-- Shop, product and service reviews (separate) + customer recommendation percentage
-  (hidden until there's enough sample size, weighted toward verified interactions)
-- Real-time customer ↔ shopkeeper chat (Flask-SocketIO) with quick actions, product-context chat
-- Reservation state machine (PENDING → CONFIRMED → READY → FULFILLED, with REJECTED/CANCELLED/EXPIRED)
-- Self pickup with a collection code, and optional local delivery with a delivery-partner workflow
-- Admin verification queue (approve/reject/request correction), document review, business
-  suspension, review moderation, reports/moderation queue, category management
-- Barcode "scan" flow (manual-entry fallback; a real camera scanner library can be dropped into
-  the existing modal in `shopkeeper/products.html`)
-- Optional AI query interpretation (`app/services/ai_service.py`) — degrades gracefully with no key
-- Trending vs. Popular (kept as separate concepts) based on logged activity events
-- JSON API endpoints under `/api/...` so a future React/mobile frontend can reuse the backend
-- Empty states, error pages (no stack traces), CSRF protection, private (non-public) storage for
-  verification documents, backend-enforced role checks everywhere
+### Business Owner
+- Multi-branch management
+- Branch switching
+- Consolidated and branch-level analytics
+- Inventory / product activity
+- Reservations and operational activity
+- Popular products and demand insights
 
-## Not fully built (explicitly out of scope for a first prototype per the build prompt)
+### Delivery Partner
+- Delivery assignments
+- Pickup/drop locations
+- Navigation
+- Delivery status tracking
+- Earnings
+- Delivery history
 
-- AI-assisted product-entry-from-photo and voice search are stubbed (no external AI wired in)
-- Delivery partner dashboard is minimal/operational only, as specified
-- No dedicated analytics dashboards beyond the admin overview counts
--
+### Admin
+- Business verification
+- Business claims
+- User and business management
+- Category management
+- Review/report moderation
+- Reservation and delivery oversight
+- Data-quality monitoring
+- Operational exceptions
+
+## Main Functional Flow
+
+```text
+CUSTOMER
+Search / Discover
+      â†“
+Nearby Businesses + Map
+      â†“
+Compare Price / Distance / Availability
+      â†“
+Chat with Business
+      â†“
+Merchant Confirms Availability
+      â†“
+Reserve
+      â†“
+Product Ready
+      â†“
+ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+ â”‚               â”‚
+Pickup        Delivery
+ â”‚               â”‚
+ â†“               â†“
+Collect        Partner Pickup
+ â”‚               â†“
+ â””â”€â”€â”€â”€â”€â”€â”€â”€â†’ Customer
+            â†“
+         Fulfilled
+```
+
+## Business Lifecycle
+
+```text
+DISCOVERED
+   â†“
+LISTED
+   â†“
+CLAIMED
+   â†“
+VERIFIED
+   â†“
+OFFERINGS / PRODUCTS
+   â†“
+CHAT
+   â†“
+RESERVATION
+   â†“
+PICKUP / DELIVERY
+```
+
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Backend | Python + Flask 3.1.2 |
+| ORM | Flask-SQLAlchemy 3.1.1 |
+| Authentication | Flask-Login 0.6.3 |
+| Realtime | Flask-SocketIO 5.5.1 |
+| Database | MySQL |
+| MySQL Driver | PyMySQL 1.1.1 |
+| Templates | Jinja2 |
+| Frontend | HTML5 + Tailwind CSS + JavaScript |
+| Maps | Leaflet / Mapbox / Google Maps Platform |
+| Environment | python-dotenv 1.1.1 |
+| Server Support | Werkzeug 3.1.3 + eventlet 0.40.3 |
+
+**Python:** 3.x, using the version supported by the project environment.
+
+## Architecture
+
+```text
+Customer / Merchant / Owner / Delivery / Admin
+                    â†“
+               Flask Routes
+                    â†“
+              Service Layer
+                    â†“
+             SQLAlchemy ORM
+                    â†“
+                 MySQL
+```
+
+Supporting services:
+
+```text
+Maps & Geolocation
+Realtime Chat / Notifications
+Search & Ranking
+Reservation / Delivery
+AI Modules (optional)
+Analytics / Activity Tracking
+```
+
+## Core Status Flows
+
+### Reservation
+`PENDING â†’ CONFIRMED â†’ READY â†’ FULFILLED`  
+Other states: `CANCELLED / EXPIRED`
+
+### Delivery
+`REQUESTED â†’ ASSIGNED â†’ ACCEPTED â†’ AT_SHOP â†’ PICKED_UP â†’ OUT_FOR_DELIVERY â†’ DELIVERED`  
+Other state: `CANCELLED`
+
+### Business Verification
+`PENDING â†’ APPROVED / REJECTED / CORRECTION_REQUIRED / SUSPENDED`
+
+### Business Claim
+`UNCLAIMED â†’ PENDING â†’ APPROVED / REJECTED`
+
+## Project Setup
+
+```bash
+python -m venv .venv
+```
+
+Activate the virtual environment, then install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Configure `.env`:
+
+```env
+DATABASE_URL=mysql+pymysql://USER:PASSWORD@HOST/DATABASE
+SECRET_KEY=your-secret-key
+MAP_API_KEY=your-map-key
+AI_API_KEY=optional
+```
+
+Seed the database:
+
+```bash
+python seed.py
+```
+
+Run the application:
+
+```bash
+python run.py
+```
+
+## Demo Roles
+
+- Customer
+- Shopkeeper / Merchant
+- Business Owner
+- Delivery Partner
+- Admin
+
+The demo dataset should cover local business types such as electronics, grocery, mechanic/service, restaurant and street food.
+
+## Important Design Principles
+
+- Local businesses can be discoverable even without live inventory.
+- Inventory is optional; offerings can represent products, services or food.
+- Do not claim guaranteed real-time stock without a true integration.
+- Show freshness so customers can judge availability.
+- Merchant workflows should stay simple and low-friction.
+- AI is optional and must have graceful non-AI fallbacks.
+- Pickup is a valid alternative to delivery where supported.
+- Trust comes from transparent verification, reviews, recommendations and freshness.
+- Sensitive verification documents and private customer data must remain protected.
+
+## Project Goal
+
+NearCart connects the physical local market with digital discovery:
+
+> **Find it nearby. Compare before you go.**
