@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ service.name }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <a href="{{ url_for('product.shop_profile', shop_id=service.shop_id) }}" class="text-sm text-stone-500 hover:underline">← {{ service.shop.name }}</a>
+  <div class="card p-6 mt-4">
+    <h1 class="text-2xl font-bold text-ink">{{ service.name }}</h1>
+    <div class="text-sm text-stone-500 mt-1">{{ service.shop.name }}{% if distance is not none %} · {{ distance | distance }} away{% endif %}</div>
+    <p class="text-stone-600 mt-4">{{ service.description or "" }}</p>
+    <div class="mt-4">
+      {% if service.price %}
+        <span class="text-xl font-bold">
+          {% if service.price_type == "STARTING_FROM" %}From {% elif service.price_type == "ESTIMATE" %}Est. {% endif %}₹{{ "%.0f"|format(service.price) }}
+        </span>
+      {% else %}
+        <span class="text-stone-400">Price on request</span>
+      {% endif %}
+      {% if service.duration %}<span class="text-stone-400 ml-2">· {{ service.duration }}</span>{% endif %}
+    </div>
+    <form method="post" action="{{ url_for('chat.start') }}" class="mt-6">
+      {% include "partials/csrf.html" %}
+      <input type="hidden" name="shop_id" value="{{ service.shop_id }}">
+      <button class="w-full bg-bazaar-700 text-white px-4 py-2.5 rounded-md font-semibold text-sm hover:bg-bazaar-800">💬 Chat about this service</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
