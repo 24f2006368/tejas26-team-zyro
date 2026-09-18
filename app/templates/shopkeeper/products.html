@@ -1,0 +1,215 @@
+<div class="max-w-5xl mx-auto px-4 py-8">
+
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-ink">Products</h1>
+    <div class="flex gap-2">
+      <button onclick="openBarcodeScanner()"
+              class="border border-stone-300 px-4 py-2 rounded-md font-semibold text-sm hover:bg-stone-100">📷 Scan Barcode</button>
+      <button onclick="document.getElementById('add-modal').classList.remove('hidden')"
+              class="bg-bazaar-700 text-white px-4 py-2 rounded-md font-semibold text-sm hover:bg-bazaar-800">+ Add Product</button>
+    </div>
+  </div>
+
+    <div class="card p-10 text-center text-stone-500">
+      No products have been added yet. Add your first product to start getting discovered.
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+        <div class="card p-4">
+          <div class="flex gap-3">
+              <img src="{{ url_for('static', filename='uploads/' + p.image) }}" class="w-16 h-16 rounded-md object-cover border border-stone-200">
+              <div class="w-16 h-16 rounded-md bg-stone-100 flex items-center justify-center text-2xl">📦</div>
+            <div class="flex-1">
+              <div class="flex justify-between">
+                <div class="font-semibold">{{ p.name }}</div>
+                <span class="badge badge-neutral">Disabled</span>
+                          </div>
+              <div class="text-xs text-stone-500">{{ p.brand or "" }}</div>
+              <div class="mt-1 flex items-baseline gap-2">
+                  <span class="text-stone-400 line-through text-sm">₹{{ "%.0f"|format(p.price) }}</span>
+                  <span class="font-bold text-clay-700">₹{{ "%.0f"|format(p.discounted_price) }}</span>
+                  <span class="badge badge-pending">{{ p.discount_percent|int }}% OFF</span>
+                  <span class="font-bold">₹{{ "%.0f"|format(p.price) }}</span>
+                  <span class="text-stone-400 text-sm">No price set</span>
+              </div>
+              <div class="text-xs text-stone-400 mt-1">Price updated {{ p.price_updated_at | timeago }}</div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
+            <select onchange="updateAvailability({{ p.id }}, this.value)" class="text-xs border border-stone-300 rounded-md px-2 py-1">
+              <option value="UNKNOWN" {% if p.availability_status == "UNKNOWN" %}selected{% endif %}>Ask Shop</option>
+              <option value="AVAILABLE" {% if p.availability_status == "AVAILABLE" %}selected{% endif %}>Available</option>
+              <option value="UNAVAILABLE" {% if p.availability_status == "UNAVAILABLE" %}selected{% endif %}>Out of Stock</option>
+            </select>
+            <div class="flex gap-2 text-xs font-semibold">
+              <button onclick="openEdit({{ p.id }}, '{{ p.name|e }}', '{{ p.brand or ''|e }}', {{ p.price or 0 }}, `{{ p.description or ''|e }}`, '{{ p.barcode or '' }}')"
+                      class="text-bazaar-700 hover:underline">Edit</button>
+              <form method="post" action="{{ url_for('shopkeeper.disable_product', product_id=p.id) }}">
+                <button class="text-stone-500 hover:underline">{{ "Enable" if p.status == "INACTIVE" else "Disable" }}</button>
+              </form>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Product Modal -->
+<div id="add-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="card bg-white p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <h2 class="font-bold text-lg mb-4">Add Product</h2>
+    <form method="post" action="{{ url_for('shopkeeper.add_product') }}" enctype="multipart/form-data" class="space-y-3">
+      <input name="name" id="add-name" placeholder="Product name *" required class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <div class="grid grid-cols-2 gap-3">
+        <input name="brand" placeholder="Brand" class="w-full border border-stone-300 rounded-md px-3 py-2">
+        <select name="category_id" class="w-full border border-stone-300 rounded-md px-3 py-2">
+          <option value="">Category</option>
+          <option value="{{ c.id }}">{{ c.name }}</option>
+        </select>
+      </div>
+      <textarea name="description" placeholder="Description" rows="2" class="w-full border border-stone-300 rounded-md px-3 py-2"></textarea>
+      <div class="grid grid-cols-2 gap-3">
+        <input type="number" step="0.01" name="price" id="add-price" placeholder="Price (₹)" class="w-full border border-stone-300 rounded-md px-3 py-2">
+        <input name="barcode" id="add-barcode" placeholder="Barcode (optional)" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <input name="sku" placeholder="SKU (optional)" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <input type="file" name="image" accept=".png,.jpg,.jpeg,.webp" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="inventory_enabled"> I track stock for this product
+      </label>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="document.getElementById('add-modal').classList.add('hidden')" class="px-4 py-2 rounded-md border border-stone-300">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-md bg-bazaar-700 text-white font-semibold">Add Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div id="edit-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="card bg-white p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+    <h2 class="font-bold text-lg mb-4">Edit Product</h2>
+    <form method="post" id="edit-form" enctype="multipart/form-data" class="space-y-3">
+      <input name="name" id="edit-name" required class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <input name="brand" id="edit-brand" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <textarea name="description" id="edit-description" rows="2" class="w-full border border-stone-300 rounded-md px-3 py-2"></textarea>
+      <div class="grid grid-cols-3 gap-3">
+        <input type="number" step="0.01" name="price" id="edit-price" placeholder="Price (₹)" class="w-full border border-stone-300 rounded-md px-3 py-2">
+        <input type="number" step="1" name="discount_percent" placeholder="Discount %" class="w-full border border-stone-300 rounded-md px-3 py-2">
+        <input name="sale_tag" placeholder="Sale tag" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      </div>
+      <input name="barcode" id="edit-barcode" placeholder="Barcode" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <input type="file" name="image" accept=".png,.jpg,.jpeg,.webp" class="w-full border border-stone-300 rounded-md px-3 py-2">
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="document.getElementById('edit-modal').classList.add('hidden')" class="px-4 py-2 rounded-md border border-stone-300">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded-md bg-bazaar-700 text-white font-semibold">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Barcode Scanner Modal: uses html5-qrcode (camera) loaded on demand, with
+     manual entry as a fallback when camera permission/HTTPS isn't available. -->
+<div id="barcode-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+  <div class="card bg-white p-6 max-w-md w-full">
+    <h2 class="font-bold text-lg mb-3">Scan Barcode</h2>
+    <div id="barcode-reader" class="w-full min-h-56 bg-stone-900 rounded-md overflow-hidden flex items-center justify-center text-white text-sm text-center px-4">
+      Starting camera&hellip;
+    </div>
+    <p id="barcode-status" class="text-xs text-stone-500 mt-2"></p>
+    <input id="barcode-manual" placeholder="Or enter barcode manually" class="w-full border border-stone-300 rounded-md px-3 py-2 mt-3">
+    <div class="flex justify-end gap-2 pt-3">
+      <button type="button" onclick="closeBarcodeScanner()" class="px-4 py-2 rounded-md border border-stone-300">Enter Product Manually</button>
+      <button type="button" onclick="lookupBarcode()" class="px-4 py-2 rounded-md bg-bazaar-700 text-white font-semibold">Look Up</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let html5QrScanner = null;
+  let html5QrLoaded = false;
+
+  function loadHtml5Qrcode() {
+    if (html5QrLoaded) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+      script.onload = () => { html5QrLoaded = true; resolve(); };
+      script.onerror = () => reject(new Error('Failed to load scanner library'));
+      document.head.appendChild(script);
+    });
+  }
+
+  function openBarcodeScanner() {
+    document.getElementById('barcode-modal').classList.remove('hidden');
+    document.getElementById('barcode-status').textContent = '';
+    const reader = document.getElementById('barcode-reader');
+    reader.innerHTML = '';
+    reader.textContent = 'Starting camera\u2026';
+
+    loadHtml5Qrcode()
+      .then(() => {
+        reader.innerHTML = '';
+        html5QrScanner = new Html5Qrcode('barcode-reader');
+        return html5QrScanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 220, height: 140 } },
+          (decodedText) => {
+            document.getElementById('barcode-manual').value = decodedText;
+            lookupBarcode();
+          },
+          () => {} // per-frame decode misses are expected; ignore
+        );
+      })
+      .catch((err) => {
+        reader.innerHTML = '';
+        reader.textContent = 'Camera unavailable (needs HTTPS/localhost + permission). Enter the barcode manually below.';
+        document.getElementById('barcode-status').textContent = err && err.message ? String(err.message) : '';
+      });
+  }
+
+  function stopBarcodeScanner() {
+    if (html5QrScanner) {
+      html5QrScanner.stop().catch(() => {}).finally(() => { html5QrScanner = null; });
+    }
+  }
+
+  function closeBarcodeScanner() {
+    stopBarcodeScanner();
+    document.getElementById('barcode-modal').classList.add('hidden');
+  }
+
+  function updateAvailability(productId, status) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/shopkeeper/products/${productId}/availability`;
+    form.innerHTML = `<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="status" value="${status}">`;
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  function openEdit(id, name, brand, price, description, barcode) {
+    document.getElementById('edit-form').action = `/shopkeeper/products/${id}/edit`;
+    document.getElementById('edit-name').value = name;
+    document.getElementById('edit-brand').value = brand;
+    document.getElementById('edit-price').value = price;
+    document.getElementById('edit-description').value = description;
+    document.getElementById('edit-barcode').value = barcode;
+    document.getElementById('edit-modal').classList.remove('hidden');
+  }
+
+  function lookupBarcode() {
+    const code = document.getElementById('barcode-manual').value.trim();
+    if (!code) return;
+    stopBarcodeScanner();
+    fetch(`/shopkeeper/products/barcode-lookup?code=${encodeURIComponent(code)}`)
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('barcode-modal').classList.add('hidden');
+        document.getElementById('add-modal').classList.remove('hidden');
+        document.getElementById('add-barcode').value = code;
+        if (data.found) {
+          document.getElementById('add-name').value = data.name || '';
+          document.getElementById('add-price').value = data.price || '';
+        }
+      });
+  }
+</script>
