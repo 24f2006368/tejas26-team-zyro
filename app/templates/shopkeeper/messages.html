@@ -1,0 +1,17 @@
+<div class="max-w-3xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-ink mb-6">Messages</h1>
+
+    <div class="card p-10 text-center text-stone-500">No conversations yet.</div>
+    <div class="space-y-2">
+        <a href="{{ url_for('chat.view', conversation_id=c.id) }}" class="card p-4 flex justify-between items-center hover:border-bazaar-300">
+          <div>
+            <div class="font-semibold">{{ c.customer.name }}{% if c.product %} <span class="text-stone-400 font-normal">· {{ c.product.name }}</span>{% endif %}</div>
+            <div class="text-sm text-stone-500 truncate max-w-md">{{ (c.messages.all()[-1].message if c.messages.count() else "") }}</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="badge badge-verified">{{ unread }} new</span>{% endif %}
+            <span class="text-xs text-stone-400">{{ c.last_message_at | timeago }}</span>
+          </div>
+        </a>
+    </div>
+</div>
